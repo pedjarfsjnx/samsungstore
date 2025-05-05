@@ -1,0 +1,490 @@
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1" name="viewport"/>
+  <title>Samsung Store</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Samsung+One&amp;display=swap" rel="stylesheet"/>
+  <style>
+    body {
+      font-family: 'Samsung One', Arial, sans-serif;
+      background: #f7f9fc;
+      margin-bottom: 80px; /* space for footer */
+    }
+    main > section {
+      display: none;
+      padding: 20px;
+    }
+    main > section.active {
+      display: block;
+    }
+    nav .nav-link.active {
+      font-weight: 700;
+      color: #007bff !important;
+    }
+    /* Modal large body scroll */
+    .modal-body-scroll {
+      max-height: 60vh;
+      overflow-y: auto;
+    }
+    footer {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      background-color: #1428a0;
+      color: white;
+      padding: 10px 0;
+      text-align: center;
+      font-size: 0.9rem;
+      z-index: 1020;
+    }
+    /* Table for admin */
+    table {
+      font-size: 0.9rem;
+    }
+    .text-truncate {
+      max-width: 200px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+  </style>
+</head>
+<body class="bg-white text-black">
+  <!-- Top header with support and business links -->
+  <div class="flex justify-end space-x-4 text-xs px-4 py-2 font-sans">
+    <a class="hover:underline" href="#">Dukungan</a>
+    <a class="hover:underline flex items-center" href="#" rel="noopener noreferrer" target="_blank">
+      For Business
+      <i class="fas fa-external-link-alt ml-1 text-[10px]"></i>
+    </a>
+  </div>
+  
+  <!-- Main navigation -->
+  <nav class="flex items-center justify-between px-4 md:px-8 py-3 border-b border-gray-200">
+    <div class="flex items-center space-x-6 md:space-x-8 text-[13px] font-semibold font-sans">
+      <a class="flex items-center" href="#" id="nav-logo">
+        <img alt="Samsung logo black text" class="w-[90px] h-[20px] object-contain" height="20" src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/24/Samsung_Logo.svg/2560px-Samsung_Logo.svg.png" width="90"/>
+      </a>
+      <a href="#" class="hover:underline nav-link" data-section="landing">Landing Page</a>
+      <a href="#" class="hover:underline nav-link" data-section="articleArchive">Arsip Artikel</a>
+      <a href="#" class="hover:underline nav-link" data-section="articleDetail" id="nav-article-detail" style="display:none;">Laman Detail Artikel</a>
+      <a href="#" class="hover:underline nav-link" data-section="productCatalog">Katalog Produk</a>
+      <a href="#" class="hover:underline nav-link" data-section="productDetail" id="nav-product-detail" style="display:none;">Laman Detail Produk</a>
+      <a href="#" class="hover:underline nav-link" data-section="manageProducts">Kelola Produk</a>
+    </div>
+    <div class="flex items-center space-x-4 text-gray-700 text-[13px] font-sans">
+      <button aria-label="Search" class="relative group">
+        <i class="fas fa-search text-[14px]"></i>
+        <input type="search" placeholder="Cari" class="absolute left-0 top-0 w-[100px] opacity-0 group-hover:opacity-100 transition-opacity rounded-full bg-gray-100 text-xs px-3 py-1 focus:outline-none" />
+      </button>
+      <button aria-label="Cart" class="text-[18px]"><i class="fas fa-shopping-cart"></i></button>
+      <button aria-label="User Account" class="text-[18px]"><i class="fas fa-user"></i></button>
+    </div>
+  </nav>
+  
+  <main class="max-w-7xl mx-auto mt-6 px-4">
+    
+    <!-- Landing Page -->
+    <section id="landing" class="active">
+      <section class="relative bg-gray-50 px-4 md:px-8 py-10 flex flex-col md:flex-row items-center justify-between rounded-lg shadow">
+        <div class="max-w-md md:max-w-lg">
+          <h2 class="text-3xl md:text-4xl font-extrabold font-sans mb-3">Galaxy Z Fold6</h2>
+          <div class="flex space-x-3 items-center">
+            <a href="#" class="text-xs font-sans underline underline-offset-2 text-black hover:text-gray-700">Learn more</a>
+            <a href="#" class="bg-black text-white text-xs font-sans rounded-full px-4 py-1 hover:bg-gray-800">Buy now</a>
+          </div>
+        </div>
+        <div class="mt-8 md:mt-0 md:max-w-xl flex flex-col items-center">
+          <div class="mb-4 text-lg font-sans font-semibold text-right w-full">Galaxy AI <span class="inline-block">✨</span> is here</div>
+          <img alt="Galaxy Z Fold6 smartphone partially folded with silver color" src="https://images.samsung.com/id/smartphones/galaxy-z-fold6/images/galaxy-z-fold6-features-kv.jpg?imbypass=true" class="w-full max-w-[400px] object-contain" height="300" width="400" />
+        </div>
+      </section>
+
+      <!-- Katalog Produk (added below landing page) -->
+      <section class="mt-10">
+        <h2 class="text-2xl font-semibold mb-4">Katalog Produk Baru</h2>
+        <div id="productListLanding" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          <!-- Product cards will be injected here -->
+        </div>
+      </section>
+    </section>
+    
+    <!-- Article Archive -->
+    <section id="articleArchive" class="hidden">
+      <h2 class="text-2xl font-semibold mb-4">Arsip Artikel</h2>
+      <ul id="articleList" class="space-y-3 list-disc pl-5 text-blue-600 font-semibold cursor-pointer">
+      </ul>
+    </section>
+    
+    <!-- Article Detail -->
+    <section id="articleDetail" class="hidden">
+      <button id="btnBackToArticles" class="mb-4 text-blue-600 underline">← Kembali ke Arsip Artikel</button>
+      <h2 id="articleDetailTitle" class="text-3xl font-bold mb-2"></h2>
+      <p id="articleDetailDate" class="text-sm italic text-gray-600 mb-4"></p>
+      <div id="articleDetailContent" class="prose max-w-full"></div>
+    </section>
+    
+    <!-- Product Catalog -->
+    <section id="productCatalog" class="hidden">
+      <h2 class="text-2xl font-semibold mb-4">Katalog Produk</h2>
+      <div id="productList" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+      </div>
+    </section>
+    
+    <!-- Product Detail -->
+    <section id="productDetail" class="hidden">
+      <button id="btnBackToCatalog" class="mb-4 text-blue-600 underline">← Kembali ke Katalog Produk</button>
+      <div class="flex flex-col md:flex-row gap-6">
+        <img id="productDetailImage" alt="" class="max-w-full md:max-w-md aspect-[3/4] object-contain rounded-lg shadow" />
+        <div class="flex flex-col justify-center">
+          <h2 id="productDetailName" class="text-3xl font-bold mb-2"></h2>
+          <p id="productDetailPrice" class="text-xl text-blue-600 font-semibold mb-4"></p>
+          <p id="productDetailDescription" class="prose max-w-full"></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Manage Products -->
+    <section id="manageProducts" class="hidden">
+      <h2 class="text-2xl font-semibold mb-4">Kelola Produk</h2>
+      <button id="btnAddProduct" class="mb-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Tambah Produk Baru</button>
+      <div class="overflow-x-auto">
+        <table class="min-w-full bg-white border border-gray-300 rounded">
+          <thead class="bg-gray-100">
+            <tr>
+              <th class="py-2 px-4 border">ID</th>
+              <th class="py-2 px-4 border">Nama Produk</th>
+              <th class="py-2 px-4 border">Harga</th>
+              <th class="py-2 px-4 border">Gambar</th>
+              <th class="py-2 px-4 border">Aksi</th>
+            </tr>
+          </thead>
+          <tbody id="productsTableBody" class="text-center divide-y divide-gray-200">
+          </tbody>
+        </table>
+      </div>
+      <!-- Modal -->
+      <div id="productFormModal" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center hidden z-50">
+        <div class="bg-white rounded-lg max-w-lg w-full p-6 mx-4">
+          <h3 id="productFormTitle" class="text-2xl font-semibold mb-4">Tambah Produk</h3>
+          <form id="productForm" class="space-y-4">
+            <input type="hidden" id="productFormId" />
+            <div>
+              <label for="productName" class="block font-semibold mb-1">Nama Produk</label>
+              <input type="text" id="productName" class="w-full border border-gray-300 rounded px-3 py-2" required />
+            </div>
+            <div>
+              <label for="productPrice" class="block font-semibold mb-1">Harga (contoh: Rp 5.000.000)</label>
+              <input type="text" id="productPrice" class="w-full border border-gray-300 rounded px-3 py-2" pattern="Rp\s*[\d\.]+" required />
+            </div>
+            <div>
+              <label for="productImage" class="block font-semibold mb-1">URL Gambar</label>
+              <input type="url" id="productImage" class="w-full border border-gray-300 rounded px-3 py-2" required />
+            </div>
+            <div>
+              <label for="productDescription" class="block font-semibold mb-1">Deskripsi</label>
+              <textarea id="productDescription" rows="4" class="w-full border border-gray-300 rounded px-3 py-2" required></textarea>
+            </div>
+            <div class="flex justify-end space-x-4">
+              <button type="button" id="btnCancelProduct" class="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400">Batal</button>
+              <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Simpan</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </section>
+  </main>
+  
+  <footer>
+    &copy; 2024 Samsung Store
+  </footer>
+
+  <script>
+    (() => {
+      // Sample Data stores
+      let articles = [
+        { id: 1, title: "Samsung Galaxy S23 Ultra Review", date: "2024-03-01",
+          content: `<p>The Samsung Galaxy S23 Ultra is packed with high-end specs including a 200MP camera, Snapdragon 8 Gen 2 chipset, and an embedded S Pen for precision. This flagship phone combines powerful performance with versatile photography capabilities, perfect for professional and personal use.</p>
+                    <p>With a large 6.8-inch Dynamic AMOLED display at 120Hz refresh rate, it delivers stunning visuals and great responsiveness.</p>` },
+        { id: 2, title: "Foldable Phones with Galaxy Z Flip5", date: "2024-02-15",
+          content: `<p>The Galaxy Z Flip5 offers a new pinnacle in foldable phone design. Its compact form factor combined with a flexible display opens new possibilities in multitasking and portability.</p>
+                    <p>Equipped with Snapdragon 8 Gen 2, it handles demanding apps with ease while providing a unique style statement.</p>` },
+        { id: 3, title: "New Tech in Samsung A Series", date: "2024-01-20",
+          content: `<p>Samsung's A series offers a balance of features and affordability. The latest models include enhanced cameras, better battery life, and sleek designs that appeal to a wide audience.</p>` }
+      ];
+
+      let products = [
+        { id: 1, name: "Samsung Galaxy S23 Ultra", price: "Rp 18.499.000", image: "https://static.vecteezy.com/system/resources/previews/035/572/095/non_2x/samsung-galaxy-s23-ultra-black-transparent-image-free-png.png", description: "The Samsung Galaxy S23 Ultra features a 6.8-inch Dynamic AMOLED display, 200MP main camera, Snapdragon 8 Gen 2 processor, and embedded S Pen for precision. Experience unmatched photography." },
+        { id: 2, name: "Samsung Galaxy Z Flip5", price: "Rp 15.900.000", image: "https://www.julo.co.id/sites/default/files/2024-09/filters_format%28png%29_upscale%28%29.png", description: "Compact foldable design with 6.7-inch AMOLED display, 120Hz refresh rate, Snapdragon 8 Gen 2 chip, and dual rear cameras." },
+        { id: 3, name: "Samsung Galaxy A54 5G", price: "Rp 5.199.000", image: "https://images.samsung.com/is/image/samsung/p6pim/id/sm-a546ezwdxid/gallery/id-galaxy-a54-5g-sm-a546-sm-a546ezwdxid-535684446?$684_547_PNG$", description: "The Galaxy A54 5G features a beautiful 6.4-inch Super AMOLED screen and triple rear cameras with a 50MP main sensor." }
+      ];
+
+      // Navigation elements
+      const navLinks = document.querySelectorAll('.nav-link');
+      const sections = document.querySelectorAll('main > section');
+      const navArticleDetail = document.getElementById('nav-article-detail');
+      const navProductDetail = document.getElementById('nav-product-detail');
+
+      // Article Elements
+      const articleList = document.getElementById('articleList');
+      const articleDetailTitle = document.getElementById('articleDetailTitle');
+      const articleDetailDate = document.getElementById('articleDetailDate');
+      const articleDetailContent = document.getElementById('articleDetailContent');
+      const btnBackToArticles = document.getElementById('btnBackToArticles');
+
+      // Product Elements
+      const productList = document.getElementById('productList');
+      const productListLanding = document.getElementById('productListLanding');
+      const productDetailName = document.getElementById('productDetailName');
+      const productDetailPrice = document.getElementById('productDetailPrice');
+      const productDetailDescription = document.getElementById('productDetailDescription');
+      const productDetailImage = document.getElementById('productDetailImage');
+      const btnBackToCatalog = document.getElementById('btnBackToCatalog');
+
+      // Manage Product Elements
+      const productsTableBody = document.getElementById('productsTableBody');
+      const btnAddProduct = document.getElementById('btnAddProduct');
+      const productFormModal = document.getElementById('productFormModal');
+      const productForm = document.getElementById('productForm');
+      const productFormTitle = document.getElementById('productFormTitle');
+      const productFormId = document.getElementById('productFormId');
+      const productNameInput = document.getElementById('productName');
+      const productPriceInput = document.getElementById('productPrice');
+      const productImageInput = document.getElementById('productImage');
+      const productDescriptionInput = document.getElementById('productDescription');
+      const btnCancelProduct = document.getElementById('btnCancelProduct');
+
+      // Current state
+      let selectedArticleId = null;
+      let selectedProductId = null;
+
+      // Utility: Switch to a named section and highlight nav
+      function switchSection(sectionId){
+        sections.forEach(sec => sec.classList.toggle('active', sec.id === sectionId));
+        navLinks.forEach(nl => {
+          nl.classList.toggle('font-bold', nl.dataset.section === sectionId);
+        });
+        // Show or hide detail nav links
+        navArticleDetail.style.display = (sectionId === 'articleDetail') ? 'inline' : 'none';
+        navProductDetail.style.display = (sectionId === 'productDetail') ? 'inline' : 'none';
+      }
+
+      // Render Articles Archive List
+      function renderArticleList(){
+        articleList.innerHTML = '';
+        articles.forEach(article => {
+          const li = document.createElement('li');
+          li.classList.add('mb-2','cursor-pointer','text-blue-600','hover:underline');
+          li.textContent = `${article.title} (${article.date})`;
+          li.addEventListener('click', () => showArticleDetail(article.id));
+          articleList.appendChild(li);
+        });
+      }
+
+      // Show Article Detail
+      function showArticleDetail(id){
+        const article = articles.find(a => a.id === id);
+        if(!article) return alert('Artikel tidak ditemukan');
+        selectedArticleId = id;
+        articleDetailTitle.textContent = article.title;
+        articleDetailDate.textContent = `Tanggal Terbit: ${article.date}`;
+        articleDetailContent.innerHTML = article.content;
+        switchSection('articleDetail');
+      }
+
+      btnBackToArticles.onclick = () => switchSection('articleArchive');
+
+      // Render Product Catalog (for productCatalog section)
+      function renderProductCatalog(){
+        productList.innerHTML = '';
+        products.forEach(product => {
+          const div = document.createElement('div');
+          div.className = 'cursor-pointer rounded-lg shadow bg-white overflow-hidden flex flex-col hover:shadow-lg transition';
+          div.tabIndex = 0;
+          div.setAttribute('role','button');
+          div.setAttribute('aria-label', `Detail produk ${product.name}`);
+          div.innerHTML = `
+            <img src="${product.image}" alt="${product.name}" class='w-full h-40 object-contain bg-gray-100' />
+            <div class='p-4 flex flex-col flex-grow'>
+              <h3 class='font-semibold mb-2 truncate'>${product.name}</h3>
+              <div class='text-blue-600 font-bold mt-auto'>${product.price}</div>
+            </div>
+          `;
+          div.addEventListener('click', () => showProductDetail(product.id));
+          div.addEventListener('keydown', e => {
+            if(e.key === "Enter" || e.key === " "){
+              e.preventDefault();
+              showProductDetail(product.id);
+            }
+          });
+          productList.appendChild(div);
+        });
+      }
+
+      // Render Product Catalog for Landing Page (below landing page)
+      function renderProductCatalogLanding(){
+        productListLanding.innerHTML = '';
+        products.forEach(product => {
+          const div = document.createElement('div');
+          div.className = 'cursor-pointer rounded-lg shadow bg-white overflow-hidden flex flex-col hover:shadow-lg transition';
+          div.tabIndex = 0;
+          div.setAttribute('role','button');
+          div.setAttribute('aria-label', `Detail produk ${product.name}`);
+          div.innerHTML = `
+            <img src="${product.image}" alt="${product.name}" class='w-full h-40 object-contain bg-gray-100' />
+            <div class='p-4 flex flex-col flex-grow'>
+              <h3 class='font-semibold mb-2 truncate'>${product.name}</h3>
+              <div class='text-blue-600 font-bold mt-auto'>${product.price}</div>
+            </div>
+          `;
+          div.addEventListener('click', () => showProductDetail(product.id));
+          div.addEventListener('keydown', e => {
+            if(e.key === "Enter" || e.key === " "){
+              e.preventDefault();
+              showProductDetail(product.id);
+            }
+          });
+          productListLanding.appendChild(div);
+        });
+      }
+
+      // Show product details
+      function showProductDetail(id){
+        const product = products.find(p=>p.id === id);
+        if(!product) return alert('Produk tidak ditemukan');
+        selectedProductId = id;
+        productDetailName.textContent = product.name;
+        productDetailPrice.textContent = product.price;
+        productDetailDescription.textContent = product.description;
+        productDetailImage.src = product.image;
+        productDetailImage.alt = product.name;
+        switchSection('productDetail');
+      }
+      btnBackToCatalog.onclick = () => switchSection('productCatalog');
+
+      // Manage Products rendering and logic
+      function renderManageProducts(){
+        productsTableBody.innerHTML = '';
+        products.forEach(product => {
+          const tr = document.createElement('tr');
+          tr.classList.add('border-b');
+          tr.innerHTML = `
+            <td class="border px-2 py-1">${product.id}</td>
+            <td class="border px-2 py-1">${product.name}</td>
+            <td class="border px-2 py-1">${product.price}</td>
+            <td class="border px-2 py-1 text-blue-600 truncate max-w-xs" title="${product.image}">${product.image}</td>
+            <td class="border px-2 py-1">
+              <button class="text-white bg-blue-600 px-2 py-1 rounded mr-2 btn-edit" data-id="${product.id}">Edit</button>
+              <button class="text-white bg-red-600 px-2 py-1 rounded btn-delete" data-id="${product.id}">Hapus</button>
+            </td>
+          `;
+          productsTableBody.appendChild(tr);
+        });
+
+        document.querySelectorAll('.btn-edit').forEach(btn => {
+          btn.onclick = () => {
+            const id = parseInt(btn.dataset.id);
+            openProductForm(id);
+          };
+        });
+        document.querySelectorAll('.btn-delete').forEach(btn => {
+          btn.onclick = () => {
+            const id = parseInt(btn.dataset.id);
+            if(confirm('Apakah Anda yakin ingin menghapus produk ini?')){
+              products = products.filter(p => p.id !== id);
+              renderManageProducts();
+              if(document.querySelector('#productCatalog').classList.contains('active')){
+                renderProductCatalog();
+              }
+              if(document.querySelector('#landing').classList.contains('active')){
+                renderProductCatalogLanding();
+              }
+            }
+          };
+        });
+      }
+
+      btnAddProduct.onclick = () => openProductForm();
+
+      // Open product form modal - create or edit
+      function openProductForm(id = null){
+        productFormTitle.textContent = id ? 'Edit Produk' : 'Tambah Produk Baru';
+        productFormId.value = id || '';
+        if(id){
+          const product = products.find(p=>p.id === id);
+          productNameInput.value = product.name;
+          productPriceInput.value = product.price;
+          productImageInput.value = product.image;
+          productDescriptionInput.value = product.description;
+        } else {
+          productForm.reset();
+        }
+        productFormModal.classList.remove('hidden');
+      }
+
+      // Close form modal on cancel
+      btnCancelProduct.onclick = () => {
+        productFormModal.classList.add('hidden');
+      };
+
+      // Form submit handler
+      productForm.onsubmit = (e) => {
+        e.preventDefault();
+        const idVal = productFormId.value ? parseInt(productFormId.value) : null;
+        const name = productNameInput.value.trim();
+        const price = productPriceInput.value.trim();
+        const image = productImageInput.value.trim();
+        const description = productDescriptionInput.value.trim();
+
+        if(!name || !price || !image || !description){
+          alert('Semua field wajib diisi.');
+          return;
+        }
+
+        if(idVal){
+          const idx = products.findIndex(p=>p.id === idVal);
+          if(idx > -1){
+            products[idx] = { id: idVal, name, price, image, description };
+          }
+        } else {
+          const nextId = products.length ? Math.max(...products.map(p=>p.id)) + 1 : 1;
+          products.push({ id: nextId, name, price, image, description });
+        }
+        renderManageProducts();
+        if(document.querySelector('#productCatalog').classList.contains('active')){
+          renderProductCatalog();
+        }
+        if(document.querySelector('#landing').classList.contains('active')){
+          renderProductCatalogLanding();
+        }
+        productFormModal.classList.add('hidden');
+      };
+
+      // Navbar click listener
+      navLinks.forEach(link => {
+        link.addEventListener('click', e => {
+          e.preventDefault();
+          const section = link.getAttribute('data-section');
+          switchSection(section);
+          if(section === 'articleArchive') renderArticleList();
+          else if(section === 'productCatalog') renderProductCatalog();
+          else if(section === 'manageProducts') renderManageProducts();
+          else if(section === 'landing') renderProductCatalogLanding();
+        });
+      });
+
+      // Logo click returns to landing
+      document.getElementById('nav-logo').onclick = (e) => {
+        e.preventDefault();
+        switchSection('landing');
+        renderProductCatalogLanding();
+      };
+
+      // Initial setup
+      switchSection('landing');
+      renderProductCatalogLanding();
+    })();
+  </script>
+</body>
+</html>
