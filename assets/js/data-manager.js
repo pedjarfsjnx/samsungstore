@@ -45,7 +45,7 @@ const DataManager = {
         priceNum: 14999000,
         category: "flagship",
         image:
-          "https://images.samsung.com/is/image/samsung/p6pim/sg/2401/gallery/sg-galaxy-s24-plus-s926-sm-s926bzvcxsp-539572929?$650_519_PNG$",
+          "https://images.samsung.com/is/image/samsung/p6pim/ie/2401/gallery/ie-galaxy-s24--491404-sm-s926bzvgeub-539465389?$624_624_PNG$",
         description: "Performa flagship dengan layar 6.7 inch yang memukau",
         specs: {
           Display: "6.7 inch Dynamic AMOLED 2X",
@@ -65,7 +65,7 @@ const DataManager = {
         priceNum: 5999000,
         category: "mid-range",
         image:
-          "https://images.samsung.com/is/image/samsung/p6pim/sg/sm-a556elvgxsp/gallery/sg-galaxy-a55-5g-a556-sm-a556elvgxsp-539581595?$650_519_PNG$",
+          "https://images.samsung.com/is/image/samsung/p6pim/id/sm-a556elbdxid/gallery/id-galaxy-a55-5g-sm-a556-sm-a556elbdxid-thumb-540158198",
         description: "Smartphone mid-range dengan performa optimal dan desain premium",
         specs: {
           Display: "6.6 inch Super AMOLED",
@@ -85,7 +85,7 @@ const DataManager = {
         priceNum: 4499000,
         category: "mid-range",
         image:
-          "https://images.samsung.com/is/image/samsung/p6pim/sg/sm-a356elvgxsp/gallery/sg-galaxy-a35-5g-a356-sm-a356elvgxsp-539581579?$650_519_PNG$",
+          "https://images.samsung.com/is/image/samsung/p6pim/id/sm-a356elvgxid/gallery/id-galaxy-a35-5g-sm-a356-sm-a356elvgxid-540157803?$684_547_PNG$",
         description: "Smartphone dengan kamera canggih dan baterai tahan lama",
         specs: {
           Display: "6.6 inch Super AMOLED",
@@ -105,7 +105,7 @@ const DataManager = {
         priceNum: 2499000,
         category: "budget",
         image:
-          "https://images.samsung.com/is/image/samsung/p6pim/sg/sm-a156elvgxsp/gallery/sg-galaxy-a15-5g-a156-sm-a156elvgxsp-538893361?$650_519_PNG$",
+          "https://images.samsung.com/is/image/samsung/p6pim/id/sm-a156ezkixid/gallery/id-galaxy-a15-5g-sm-a156-sm-a156ezkixid-thumb-539496247",
         description: "Smartphone entry-level dengan fitur lengkap dan harga terjangkau",
         specs: {
           Display: "6.5 inch Super AMOLED",
@@ -131,7 +131,7 @@ const DataManager = {
         content:
           "Samsung Galaxy S24 Ultra hadir sebagai smartphone flagship terdepan di tahun 2024. Dengan layar Dynamic AMOLED 2X berukuran 6.8 inci, smartphone ini menawarkan pengalaman visual yang luar biasa. Prosesor Snapdragon 8 Gen 3 yang tertanam memberikan performa maksimal untuk segala kebutuhan, mulai dari gaming hingga produktivitas. Kamera utama 200MP menghasilkan foto dengan detail yang sangat tajam, sementara S Pen yang disematkan memungkinkan pengguna untuk lebih produktif dalam bekerja. Baterai 5000mAh dengan fast charging 45W memastikan smartphone ini dapat digunakan seharian penuh.",
         image:
-          "https://images.samsung.com/is/image/samsung/p6pim/sg/2401/gallery/sg-galaxy-s24-ultra-s928-sm-s928bzkcxsp-539572945?$650_519_PNG$",
+          "https://dorangadget.com/wp-content/uploads/2024/01/Review-Samsung-Galaxy-S24-Ultra-1.jpg",
         author: "Tim Review Samsung",
         date: "2024-01-15",
         category: "Review",
@@ -144,7 +144,7 @@ const DataManager = {
         content:
           "Kamera Samsung Galaxy telah menjadi salah satu yang terdepan di industri smartphone. Untuk mendapatkan hasil foto terbaik, ada beberapa tips yang bisa diterapkan. Pertama, manfaatkan mode Pro untuk kontrol manual yang lebih detail. Kedua, gunakan fitur Night Mode untuk foto low-light yang menakjubkan. Ketiga, eksplorasi berbagai mode seperti Portrait, Panorama, dan Food untuk hasil yang optimal sesuai subjek. Keempat, manfaatkan AI Scene Optimizer yang secara otomatis menyesuaikan setting kamera berdasarkan subjek yang difoto. Terakhir, jangan lupa untuk membersihkan lensa secara rutin agar hasil foto selalu jernih.",
         image:
-          "https://images.samsung.com/is/image/samsung/assets/sg/smartphones/galaxy-s24/images/galaxy-s24-highlights-camera-mo.jpg",
+          "https://asset-2.tstatic.net/bangka/foto/bank/images/Cara-Setting-Kamera-Samsung-Agar-Jernih-Saat-Ambil-Foto-dan-Video-Kamu-Wajib-Tahu.jpg",
         author: "Photography Expert",
         date: "2024-01-10",
         category: "Tips",
@@ -157,7 +157,7 @@ const DataManager = {
         content:
           "Samsung One UI 6.1 menghadirkan berbagai fitur baru yang meningkatkan pengalaman pengguna Android. Fitur Circle to Search memungkinkan pencarian visual dengan mudah hanya dengan menggambar lingkaran di layar. Live Translate memberikan terjemahan real-time untuk panggilan telepon dalam berbagai bahasa. Chat Assist membantu menulis pesan dengan tone yang tepat menggunakan AI. Wallpaper Engine yang baru memungkinkan personalisasi yang lebih mendalam. Battery optimization yang ditingkatkan memberikan daya tahan baterai yang lebih lama. Semua fitur ini dirancang untuk memberikan pengalaman yang lebih intuitif dan produktif bagi pengguna Samsung Galaxy.",
         image:
-          "https://images.samsung.com/is/image/samsung/assets/sg/smartphones/galaxy-s24/images/galaxy-s24-highlights-oneui-mo.jpg",
+          "https://indogamers.com/_next/image?url=https%3A%2F%2Fassets.indogamers.com%2Fmedia%2Fimages%2F2024%2F09%2F11%2Fdesain_tanpa_judul_24.webp&w=3840&q=75",
         author: "Samsung Indonesia",
         date: "2024-01-05",
         category: "Update",
