@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1" name="viewport"/>
+  <title>Samsung Store - History Transaksi</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Samsung+One&display=swap" rel="stylesheet"/>
+  <link href="assets/css/main.css" rel="stylesheet"/>
+</head>
+<body>
+  <!-- Header -->
+  <div id="header"></div>
+
+  <!-- Page Header -->
+  <section class="bg-blue-600 text-white py-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center">
+        <h1 class="text-3xl md:text-4xl font-bold mb-4">History Transaksi</h1>
+        <p class="text-xl opacity-90">Riwayat pembelian dan status pesanan Anda</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Transaction History Section -->
+  <section class="py-16 bg-gray-50">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="bg-white rounded-lg shadow">
+        <div class="p-6 border-b">
+          <h2 class="text-xl font-semibold">Riwayat Transaksi</h2>
+        </div>
+        
+        <div id="transactionList" class="divide-y divide-gray-200">
+          <!-- Transaction items will be loaded here -->
+        </div>
+        
+        <div id="emptyHistory" class="text-center py-12 hidden">
+          <i class="fas fa-receipt text-6xl text-gray-300 mb-4"></i>
+          <h3 class="text-xl font-semibold text-gray-600 mb-2">Belum Ada Transaksi</h3>
+          <p class="text-gray-500 mb-6">Anda belum memiliki riwayat transaksi</p>
+          <a href="products.html" class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 inline-flex items-center">
+            <i class="fas fa-shopping-bag mr-2"></i>Mulai Belanja
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <div id="footer"></div>
+
+  <!-- Transaction Detail Modal -->
+  <div id="transactionModal" class="modal hidden">
+    <div class="modal-content bg-white rounded-lg max-w-3xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+      <div class="p-6">
+        <div class="flex justify-between items-center mb-6">
+          <h2 class="text-xl font-bold">Detail Transaksi</h2>
+          <button id="closeModal" class="text-gray-500 hover:text-gray-700">
+            <i class="fas fa-times text-xl"></i>
+          </button>
+        </div>
+        
+        <div id="transactionDetail">
+          <!-- Transaction details will be loaded here -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="assets/js/utils.js"></script>
+  <script src="assets/js/data-manager.js"></script>
+  <script src="assets/js/cart-manager.js"></script>
+  <script>
+    // Load components
+    async function loadComponent(elementId, filePath) {
+      try {
+        const response = await fetch(filePath);
+        const html = await response.text();
+        document.getElementById(elementId).innerHTML = html;
+      } catch (error) {
+        console.error('Error loading component:', error);
+      }
+    }
+
+    // Initialize page
+    document.addEventListener('DOMContentLoaded', async function() {
+      // Load components
+      await loadComponent('header', 'components/header.html');
+      await loadComponent('footer', 'components/footer.html');
+      
+      // Initialize data
+      DataManager.init();
+      CartManager.updateCartUI();
+      
+      // Load transaction history
+      loadTransactionHistory();
+      setupModal();
+    });
+
+    function loadTransactionHistory() {
+      const transactions = DataManager.getTransactions();
+      const history = JSON.parse(localStorage.getItem('samsungTransactionHistory')) || [];
+      const allTransactions = [...transactions, ...history];
+      
+      const transactionList = document.getElementById('transactionList');
+      const emptyHistory = document.getElementById('emptyHistory');
+      
+      if (allTransactions.length === 0) {
+        transactionList.style.display = 'none';
+        emptyHistory.classList.remove('hidden');
+        return;
+      }
+      
+      transactionList.style.display = 'block';
+      emptyHistory.classList.add('hidden');
+      
+      transactionList.innerHTML = allTransactions.map(transaction => {
+        const statusClass = {
+          'pending': 'bg-yellow-100 text-yellow-800',
+          'approved': 'bg-green-100 text-green-800',
+          'rejected': 'bg-red-100 text-red-800'
+        }[transaction.status] || 'bg-gray-100 text-gray-800';
+        
+        const statusText = {
+          'pending': 'Menunggu Verifikasi',
+          'approved': 'Disetujui',
+          'rejected': 'Ditolak'
+        }[transaction.status] || transaction.status;
+        
+        return `
+          <div class="p-6 hover:bg-gray-50 cursor-pointer" onclick="showTransactionDetail(${transaction.id})">
+            <div class="flex items-center justify-between">
+              <div class="flex-1">
+                <div class="flex items-center space-x-4">
+                  <div class="flex-shrink-0">
+                    <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                      <i class="fas fa-receipt text-blue-600"></i>
+                    </div>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <div class="flex items-center space-x-2">
+                      <h3 class="text-lg font-semibold text-gray-900">TRX-${transaction.id}</h3>
+                      <span class="px-2 py-1 text-xs font-medium rounded-full ${statusClass}">
+                        ${statusText}
+                      </span>
+                    </div>
+                    <p class="text-sm text-gray-500 mt-1">
+                      ${Utils.formatDate(transaction.date)} • ${transaction.items?.length || 0} item
+                    </p>
+                    <p class="text-sm text-gray-600 mt-1">
+                      ${transaction.shipping?.fullName || 'N/A'}
+                    </p>
+                  </div>
+                  <div class="text-right">
+                    <div class="text-lg font-bold text-gray-900">
+                      Rp ${(transaction.total || 0).toLocaleString('id-ID')}
+                    </div>
+                    <div class="text-sm text-gray-500">
+                      ${transaction.payment?.method === 'credit_card' ? 'Kartu Kredit' : 
+                        transaction.payment?.method === 'bank_transfer' ? 'Transfer Bank' : 
+                        transaction.payment?.method === 'e_wallet' ? 'E-Wallet' : 'N/A'}
+                    </div>
+                  </div>
+                  <div class="flex-shrink-0 ml-4">
+                    <i class="fas fa-chevron-right text-gray-400"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function showTransactionDetail(transactionId) {
+      const transactions = DataManager.getTransactions();
+      const history = JSON.parse(localStorage.getItem('samsungTransactionHistory')) || [];
+      const allTransactions = [...transactions, ...history];
+      
+      const transaction = allTransactions.find(t => t.id === transactionId);
+      
+      if (!transaction) return;
+
+      const statusClass = {
+        'pending': 'bg-yellow-100 text-yellow-800',
+        'approved': 'bg-green-100 text-green-800',
+        'rejected': 'bg-red-100 text-red-800'
+      }[transaction.status] || 'bg-gray-100 text-gray-800';
+      
+      const statusText = {
+        'pending': 'Menunggu Verifikasi',
+        'approved': 'Disetujui',
+        'rejected': 'Ditolak'
+      }[transaction.status] || transaction.status;
+
+      const itemsHtml = transaction.items?.map(item => `
+        <div class="flex justify-between items-center py-2 border-b">
+          <div class="flex items-center space-x-3">
+            <img src="${item.image}" alt="${item.name}" class="w-12 h-12 object-contain">
+            <div>
+              <div class="font-medium">${item.name}</div>
+              <div class="text-sm text-gray-500">Qty: ${item.quantity}</div>
+            </div>
+          </div>
+          <div class="font-semibold">${item.price}</div>
+        </div>
+      `).join('') || '<p class="text-gray-500">Data item tidak tersedia</p>';
+
+      const detailHtml = `
+        <div class="space-y-6">
+          <div class="flex items-center justify-between">
+            <h3 class="text-lg font-semibold">TRX-${transaction.id}</h3>
+            <span class="px-3 py-1 text-sm font-medium rounded-full ${statusClass}">
+              ${statusText}
+            </span>
+          </div>
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <h4 class="font-semibold mb-3">Informasi Pelanggan</h4>
+              <div class="bg-gray-50 p-4 rounded-lg space-y-2">
+                <div><strong>Nama:</strong> ${transaction.shipping?.fullName || 'N/A'}</div>
+                <div><strong>Email:</strong> ${transaction.shipping?.email || 'N/A'}</div>
+                <div><strong>Telepon:</strong> ${transaction.shipping?.phone || 'N/A'}</div>
+                <div><strong>Alamat:</strong> ${transaction.shipping?.address || 'N/A'}</div>
+              </div>
+            </div>
+            
+            <div>
+              <h4 class="font-semibold mb-3">Informasi Pembayaran</h4>
+              <div class="bg-gray-50 p-4 rounded-lg space-y-2">
+                <div><strong>Metode:</strong> ${transaction.payment?.method || 'N/A'}</div>
+                <div><strong>Status:</strong> ${statusText}</div>
+                <div><strong>Tanggal:</strong> ${Utils.formatDate(transaction.date)}</div>
+                ${transaction.processedDate ? `<div><strong>Diproses:</strong> ${Utils.formatDate(transaction.processedDate)}</div>` : ''}
+              </div>
+            </div>
+          </div>
+          
+          <div>
+            <h4 class="font-semibold mb-3">Item Pesanan</h4>
+            <div class="bg-gray-50 p-4 rounded-lg">
+              ${itemsHtml}
+              <div class="pt-4 mt-4 border-t">
+                <div class="flex justify-between text-lg font-bold">
+                  <span>Total:</span>
+                  <span>Rp ${(transaction.total || 0).toLocaleString('id-ID')}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+
+      document.getElementById('transactionDetail').innerHTML = detailHtml;
+      document.getElementById('transactionModal').classList.remove

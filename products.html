@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1" name="viewport"/>
+  <title>Samsung Store - Katalog Produk</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Samsung+One&display=swap" rel="stylesheet"/>
+  <link href="assets/css/main.css" rel="stylesheet"/>
+</head>
+<body>
+  <!-- Header -->
+  <div id="header"></div>
+
+  <!-- Page Header -->
+  <section class="bg-blue-600 text-white py-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center">
+        <h1 class="text-3xl md:text-4xl font-bold mb-4">Katalog Produk</h1>
+        <p class="text-xl opacity-90">Temukan smartphone Samsung yang sesuai dengan kebutuhan Anda</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Products Section -->
+  <section class="py-16 bg-gray-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <!-- Product Filter -->
+      <div class="flex justify-center mb-8">
+        <div class="flex space-x-4">
+          <button class="filter-btn active bg-blue-600 text-white px-6 py-2 rounded-lg" data-category="all">Semua</button>
+          <button class="filter-btn bg-gray-200 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-300" data-category="flagship">Flagship</button>
+          <button class="filter-btn bg-gray-200 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-300" data-category="mid-range">Mid-Range</button>
+          <button class="filter-btn bg-gray-200 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-300" data-category="budget">Budget</button>
+        </div>
+      </div>
+      
+      <div id="productGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+        <!-- Products will be loaded here -->
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <div id="footer"></div>
+
+  <!-- Scripts -->
+  <script src="assets/js/utils.js"></script>
+  <script src="assets/js/data-manager.js"></script>
+  <script src="assets/js/cart-manager.js"></script>
+  <script>
+    // Load components
+    async function loadComponent(elementId, filePath) {
+      try {
+        const response = await fetch(filePath);
+        const html = await response.text();
+        document.getElementById(elementId).innerHTML = html;
+      } catch (error) {
+        console.error('Error loading component:', error);
+      }
+    }
+
+    // Initialize page
+    document.addEventListener('DOMContentLoaded', async function() {
+      // Load components
+      await loadComponent('header', 'components/header.html');
+      await loadComponent('footer', 'components/footer.html');
+      
+      // Initialize data
+      DataManager.init();
+      CartManager.updateCartUI();
+      
+      // Load products
+      renderProducts();
+      
+      // Setup filter buttons
+      setupFilters();
+    });
+
+    function renderProducts(products = null) {
+      const productGrid = document.getElementById('productGrid');
+      const productsToRender = products || DataManager.getProducts().filter(p => p.status === 'active');
+      
+      productGrid.innerHTML = productsToRender.map(product => `
+        <div class="product-card bg-white rounded-lg shadow-md overflow-hidden" data-category="${product.category}">
+          <div class="aspect-square bg-gray-100 flex items-center justify-center p-4">
+            <img src="${product.image}" alt="${product.name}" class="w-full h-full object-contain">
+          </div>
+          <div class="p-6">
+            <h3 class="font-semibold text-lg mb-2 line-clamp-2">${product.name}</h3>
+            <p class="text-blue-600 font-bold text-xl mb-4">${product.price}</p>
+            <div class="flex space-x-2">
+              <a href="product-detail.html?id=${product.id}" class="flex-1 bg-gray-100 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-200 text-center">
+                Detail
+              </a>
+              <button onclick="quickAddToCart(${product.id})" class="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700">
+                <i class="fas fa-cart-plus"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function setupFilters() {
+      document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          filterProducts(btn.dataset.category);
+        });
+      });
+    }
+
+    function filterProducts(category) {
+      const products = DataManager.getProducts().filter(p => p.status === 'active');
+      const filteredProducts = category === 'all' ? products : products.filter(p => p.category === category);
+      renderProducts(filteredProducts);
+      
+      // Update filter buttons
+      document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.classList.remove('active', 'bg-blue-600', 'text-white');
+        btn.classList.add('bg-gray-200', 'text-gray-700');
+      });
+      
+      const activeBtn = document.querySelector(`[data-category="${category}"]`);
+      activeBtn.classList.remove('bg-gray-200', 'text-gray-700');
+      activeBtn.classList.add('active', 'bg-blue-600', 'text-white');
+    }
+
+    function quickAddToCart(productId) {
+      const products = DataManager.getProducts();
+      const product = products.find(p => p.id === productId);
+      
+      if (product && CartManager.addToCart(product, 1)) {
+        // Show success feedback
+        const btn = event.target.closest('button');
+        const originalHtml = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-check"></i>';
+        btn.disabled = true;
+        
+        setTimeout(() => {
+          btn.innerHTML = originalHtml;
+          btn.disabled = false;
+        }, 1500);
+      }
+    }
+  </script>
+</body>
+</html>

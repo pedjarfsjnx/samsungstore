@@ -1,0 +1,1163 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1" name="viewport"/>
+  <title>Samsung Store - Admin Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Samsung+One&display=swap" rel="stylesheet"/>
+  <style>
+    body {
+      font-family: 'Samsung One', Arial, sans-serif;
+    }
+    .sidebar {
+      transition: transform 0.3s ease;
+    }
+    .sidebar.hidden {
+      transform: translateX(-100%);
+    }
+    .content {
+      transition: margin-left 0.3s ease;
+    }
+    .content.expanded {
+      margin-left: 0;
+    }
+    .tab-content {
+      display: none;
+    }
+    .tab-content.active {
+      display: block;
+    }
+    .status-pending { color: #f59e0b; }
+    .status-approved { color: #10b981; }
+    .status-rejected { color: #ef4444; }
+  </style>
+</head>
+<body class="bg-gray-100">
+  <!-- Sidebar -->
+  <div id="sidebar" class="sidebar fixed left-0 top-0 h-full w-64 bg-white shadow-lg z-40">
+    <div class="p-6 border-b">
+      <div class="flex items-center">
+        <img alt="Samsung logo" class="w-[90px] h-[20px] object-contain" src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/24/Samsung_Logo.svg/2560px-Samsung_Logo.svg.png"/>
+        <span class="ml-3 text-lg font-semibold">Admin</span>
+      </div>
+    </div>
+    
+    <nav class="mt-6">
+      <a href="#" class="nav-item flex items-center px-6 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 border-r-2 border-blue-600 bg-blue-50 text-blue-600" data-tab="dashboard">
+        <i class="fas fa-tachometer-alt mr-3"></i>Dashboard
+      </a>
+      <a href="#" class="nav-item flex items-center px-6 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600" data-tab="products">
+        <i class="fas fa-box mr-3"></i>Kelola Produk
+      </a>
+      <a href="#" class="nav-item flex items-center px-6 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600" data-tab="articles">
+        <i class="fas fa-newspaper mr-3"></i>Kelola Artikel
+      </a>
+      <a href="#" class="nav-item flex items-center px-6 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600" data-tab="transactions">
+        <i class="fas fa-credit-card mr-3"></i>Kelola Transaksi
+      </a>
+      <a href="#" class="nav-item flex items-center px-6 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600" data-tab="history">
+        <i class="fas fa-history mr-3"></i>Histori Transaksi
+      </a>
+      <a href="#" class="nav-item flex items-center px-6 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600" data-tab="users">
+        <i class="fas fa-users mr-3"></i>Kelola Pengguna
+      </a>
+    </nav>
+    
+    <div class="absolute bottom-6 left-6 right-6">
+      <a href="index.html" class="flex items-center justify-center w-full px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700">
+        <i class="fas fa-home mr-2"></i>Kembali ke Toko
+      </a>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div id="content" class="content ml-64 min-h-screen">
+    <!-- Header -->
+    <header class="bg-white shadow-sm border-b p-4">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center">
+          <button id="sidebarToggle" class="lg:hidden mr-4 text-gray-600 hover:text-gray-900">
+            <i class="fas fa-bars text-xl"></i>
+          </button>
+          <h1 id="pageTitle" class="text-2xl font-bold text-gray-900">Dashboard</h1>
+        </div>
+        <div class="flex items-center space-x-4">
+          <span class="text-gray-600">Admin Panel</span>
+          <div class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
+            <i class="fas fa-user text-white text-sm"></i>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Dashboard Tab -->
+    <div id="dashboard" class="tab-content active p-6">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div class="bg-white rounded-lg shadow p-6">
+          <div class="flex items-center">
+            <div class="p-3 bg-blue-100 rounded-full">
+              <i class="fas fa-box text-blue-600 text-xl"></i>
+            </div>
+            <div class="ml-4">
+              <p class="text-sm text-gray-600">Total Produk</p>
+              <p id="totalProducts" class="text-2xl font-bold text-gray-900">0</p>
+            </div>
+          </div>
+        </div>
+        
+        <div class="bg-white rounded-lg shadow p-6">
+          <div class="flex items-center">
+            <div class="p-3 bg-green-100 rounded-full">
+              <i class="fas fa-newspaper text-green-600 text-xl"></i>
+            </div>
+            <div class="ml-4">
+              <p class="text-sm text-gray-600">Total Artikel</p>
+              <p id="totalArticles" class="text-2xl font-bold text-gray-900">0</p>
+            </div>
+          </div>
+        </div>
+        
+        <div class="bg-white rounded-lg shadow p-6">
+          <div class="flex items-center">
+            <div class="p-3 bg-yellow-100 rounded-full">
+              <i class="fas fa-clock text-yellow-600 text-xl"></i>
+            </div>
+            <div class="ml-4">
+              <p class="text-sm text-gray-600">Transaksi Pending</p>
+              <p id="pendingTransactions" class="text-2xl font-bold text-gray-900">0</p>
+            </div>
+          </div>
+        </div>
+        
+        <div class="bg-white rounded-lg shadow p-6">
+          <div class="flex items-center">
+            <div class="p-3 bg-purple-100 rounded-full">
+              <i class="fas fa-chart-line text-purple-600 text-xl"></i>
+            </div>
+            <div class="ml-4">
+              <p class="text-sm text-gray-600">Total Penjualan</p>
+              <p id="totalSales" class="text-2xl font-bold text-gray-900">Rp 0</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="bg-white rounded-lg shadow p-6">
+          <h3 class="text-lg font-semibold mb-4">Transaksi Terbaru</h3>
+          <div id="recentTransactions" class="space-y-3">
+            <!-- Recent transactions will be loaded here -->
+          </div>
+        </div>
+        
+        <div class="bg-white rounded-lg shadow p-6">
+          <h3 class="text-lg font-semibold mb-4">Produk Terlaris</h3>
+          <div id="topProducts" class="space-y-3">
+            <!-- Top products will be loaded here -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Products Tab -->
+    <div id="products" class="tab-content p-6">
+      <div class="bg-white rounded-lg shadow">
+        <div class="p-6 border-b">
+          <div class="flex justify-between items-center">
+            <h2 class="text-xl font-semibold">Kelola Produk</h2>
+            <button id="addProductBtn" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+              <i class="fas fa-plus mr-2"></i>Tambah Produk
+            </button>
+          </div>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Produk</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Kategori</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Harga</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Stok</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="productsTable" class="divide-y divide-gray-200">
+              <!-- Products will be loaded here -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Articles Tab -->
+    <div id="articles" class="tab-content p-6">
+      <div class="bg-white rounded-lg shadow">
+        <div class="p-6 border-b">
+          <div class="flex justify-between items-center">
+            <h2 class="text-xl font-semibold">Kelola Artikel</h2>
+            <button id="addArticleBtn" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+              <i class="fas fa-plus mr-2"></i>Tambah Artikel
+            </button>
+          </div>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Judul</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Kategori</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Penulis</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Tanggal</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="articlesTable" class="divide-y divide-gray-200">
+              <!-- Articles will be loaded here -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Transactions Tab -->
+    <div id="transactions" class="tab-content p-6">
+      <div class="bg-white rounded-lg shadow">
+        <div class="p-6 border-b">
+          <h2 class="text-xl font-semibold">Kelola Transaksi</h2>
+          <p class="text-gray-600 mt-1">Kelola transaksi yang masuk dari pelanggan</p>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">ID Transaksi</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Pelanggan</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Total</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Tanggal</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="transactionsTable" class="divide-y divide-gray-200">
+              <!-- Transactions will be loaded here -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- History Tab -->
+    <div id="history" class="tab-content p-6">
+      <div class="bg-white rounded-lg shadow">
+        <div class="p-6 border-b">
+          <h2 class="text-xl font-semibold">Histori Transaksi</h2>
+          <p class="text-gray-600 mt-1">Riwayat transaksi yang telah diproses</p>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">ID Transaksi</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Pelanggan</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Total</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Tanggal</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="historyTable" class="divide-y divide-gray-200">
+              <!-- History will be loaded here -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Users Tab -->
+    <div id="users" class="tab-content p-6">
+      <div class="bg-white rounded-lg shadow">
+        <div class="p-6 border-b">
+          <h2 class="text-xl font-semibold">Kelola Pengguna</h2>
+          <p class="text-gray-600 mt-1">Fitur ini akan dikembangkan lebih lanjut</p>
+        </div>
+        <div class="p-6">
+          <div class="text-center py-12">
+            <i class="fas fa-users text-6xl text-gray-300 mb-4"></i>
+            <h3 class="text-xl font-semibold text-gray-600 mb-2">Kelola Pengguna</h3>
+            <p class="text-gray-500">Fitur manajemen pengguna akan tersedia segera</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Product Modal -->
+  <div id="productModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+    <div class="bg-white rounded-lg max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+      <div class="p-6">
+        <div class="flex justify-between items-center mb-6">
+          <h2 id="productModalTitle" class="text-xl font-bold">Tambah Produk</h2>
+          <button id="closeProductModal" class="text-gray-500 hover:text-gray-700">
+            <i class="fas fa-times text-xl"></i>
+          </button>
+        </div>
+        
+        <form id="productForm" class="space-y-4">
+          <input type="hidden" id="productId">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Nama Produk</label>
+              <input type="text" id="productName" class="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Kategori</label>
+              <select id="productCategory" class="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                <option value="">Pilih Kategori</option>
+                <option value="flagship">Flagship</option>
+                <option value="mid-range">Mid-Range</option>
+                <option value="budget">Budget</option>
+              </select>
+            </div>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Harga</label>
+              <input type="number" id="productPrice" class="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Stok</label>
+              <input type="number" id="productStock" class="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+            </div>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">URL Gambar</label>
+            <input type="url" id="productImage" class="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Deskripsi</label>
+            <textarea id="productDescription" rows="3" class="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" required></textarea>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
+            <select id="productStatus" class="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+              <option value="active">Aktif</option>
+              <option value="inactive">Tidak Aktif</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Spesifikasi</label>
+            <div class="space-y-2">
+              <div class="grid grid-cols-2 gap-2">
+                <input type="text" id="specDisplay" placeholder="Display" class="border rounded px-2 py-1 text-sm">
+                <input type="text" id="specDisplayValue" placeholder="6.1 inch Super AMOLED" class="border rounded px-2 py-1 text-sm">
+              </div>
+              <div class="grid grid-cols-2 gap-2">
+                <input type="text" id="specProcessor" placeholder="Processor" class="border rounded px-2 py-1 text-sm">
+                <input type="text" id="specProcessorValue" placeholder="Exynos 2400" class="border rounded px-2 py-1 text-sm">
+              </div>
+              <div class="grid grid-cols-2 gap-2">
+                <input type="text" id="specRAM" placeholder="RAM" class="border rounded px-2 py-1 text-sm">
+                <input type="text" id="specRAMValue" placeholder="8GB" class="border rounded px-2 py-1 text-sm">
+              </div>
+              <div class="grid grid-cols-2 gap-2">
+                <input type="text" id="specStorage" placeholder="Storage" class="border rounded px-2 py-1 text-sm">
+                <input type="text" id="specStorageValue" placeholder="128GB" class="border rounded px-2 py-1 text-sm">
+              </div>
+              <div class="grid grid-cols-2 gap-2">
+                <input type="text" id="specCamera" placeholder="Camera" class="border rounded px-2 py-1 text-sm">
+                <input type="text" id="specCameraValue" placeholder="50MP + 12MP + 10MP" class="border rounded px-2 py-1 text-sm">
+              </div>
+              <div class="grid grid-cols-2 gap-2">
+                <input type="text" id="specBattery" placeholder="Battery" class="border rounded px-2 py-1 text-sm">
+                <input type="text" id="specBatteryValue" placeholder="4000mAh" class="border rounded px-2 py-1 text-sm">
+              </div>
+            </div>
+            <p class="text-xs text-gray-500 mt-1">Kolom kiri untuk nama spek, kolom kanan untuk nilai spek</p>
+          </div>
+          <div class="flex justify-end space-x-3 pt-4">
+            <button type="button" id="cancelProduct" class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">Batal</button>
+            <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Simpan</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Article Modal -->
+  <div id="articleModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+    <div class="bg-white rounded-lg max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+      <div class="p-6">
+        <div class="flex justify-between items-center mb-6">
+          <h2 id="articleModalTitle" class="text-xl font-bold">Tambah Artikel</h2>
+          <button id="closeArticleModal" class="text-gray-500 hover:text-gray-700">
+            <i class="fas fa-times text-xl"></i>
+          </button>
+        </div>
+        
+        <form id="articleForm" class="space-y-4">
+          <input type="hidden" id="articleId">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Judul Artikel</label>
+            <input type="text" id="articleTitle" class="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Kategori</label>
+              <select id="articleCategory" class="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                <option value="">Pilih Kategori</option>
+                <option value="Review">Review</option>
+                <option value="Tips">Tips</option>
+                <option value="Update">Update</option>
+                <option value="News">News</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Penulis</label>
+              <input type="text" id="articleAuthor" class="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+            </div>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">URL Gambar</label>
+            <input type="url" id="articleImage" class="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Excerpt</label>
+            <textarea id="articleExcerpt" rows="2" class="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" required></textarea>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Konten</label>
+            <textarea id="articleContent" rows="6" class="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" required></textarea>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
+            <select id="articleStatus" class="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+              <option value="published">Published</option>
+              <option value="draft">Draft</option>
+            </select>
+          </div>
+          <div class="flex justify-end space-x-3 pt-4">
+            <button type="button" id="cancelArticle" class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">Batal</button>
+            <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Simpan</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Transaction Detail Modal -->
+  <div id="transactionModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+    <div class="bg-white rounded-lg max-w-3xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+      <div class="p-6">
+        <div class="flex justify-between items-center mb-6">
+          <h2 class="text-xl font-bold">Detail Transaksi</h2>
+          <button id="closeTransactionModal" class="text-gray-500 hover:text-gray-700">
+            <i class="fas fa-times text-xl"></i>
+          </button>
+        </div>
+        
+        <div id="transactionDetail">
+          <!-- Transaction details will be loaded here -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Admin Data Manager
+    const AdminDataManager = {
+      getProducts() {
+        return JSON.parse(localStorage.getItem('samsungProducts')) || [];
+      },
+
+      saveProducts(products) {
+        localStorage.setItem('samsungProducts', JSON.stringify(products));
+      },
+
+      getArticles() {
+        return JSON.parse(localStorage.getItem('samsungArticles')) || [];
+      },
+
+      saveArticles(articles) {
+        localStorage.setItem('samsungArticles', JSON.stringify(articles));
+      },
+
+      getTransactions() {
+        return JSON.parse(localStorage.getItem('samsungTransactions')) || [];
+      },
+
+      saveTransactions(transactions) {
+        localStorage.setItem('samsungTransactions', JSON.stringify(transactions));
+      },
+
+      getTransactionHistory() {
+        return JSON.parse(localStorage.getItem('samsungTransactionHistory')) || [];
+      },
+
+      saveTransactionHistory(history) {
+        localStorage.setItem('samsungTransactionHistory', JSON.stringify(history));
+      },
+
+      approveTransaction(transactionId) {
+        const transactions = this.getTransactions();
+        const history = this.getTransactionHistory();
+        
+        const transactionIndex = transactions.findIndex(t => t.id === transactionId);
+        if (transactionIndex !== -1) {
+          const transaction = transactions[transactionIndex];
+          transaction.status = 'approved';
+          transaction.processedDate = new Date().toISOString();
+          
+          // Move to history
+          history.push(transaction);
+          transactions.splice(transactionIndex, 1);
+          
+          this.saveTransactions(transactions);
+          this.saveTransactionHistory(history);
+          return true;
+        }
+        return false;
+      },
+
+      rejectTransaction(transactionId) {
+        const transactions = this.getTransactions();
+        const history = this.getTransactionHistory();
+        
+        const transactionIndex = transactions.findIndex(t => t.id === transactionId);
+        if (transactionIndex !== -1) {
+          const transaction = transactions[transactionIndex];
+          transaction.status = 'rejected';
+          transaction.processedDate = new Date().toISOString();
+          
+          // Move to history
+          history.push(transaction);
+          transactions.splice(transactionIndex, 1);
+          
+          this.saveTransactions(transactions);
+          this.saveTransactionHistory(history);
+          return true;
+        }
+        return false;
+      }
+    };
+
+    // Admin UI Manager
+    const AdminUI = {
+      currentTab: 'dashboard',
+
+      init() {
+        this.setupEventListeners();
+        this.loadDashboard();
+        this.updateDashboardStats();
+      },
+
+      setupEventListeners() {
+        // Sidebar navigation
+        document.querySelectorAll('.nav-item').forEach(item => {
+          item.addEventListener('click', (e) => {
+            e.preventDefault();
+            const tab = item.dataset.tab;
+            this.switchTab(tab);
+          });
+        });
+
+        // Sidebar toggle
+        document.getElementById('sidebarToggle').addEventListener('click', () => {
+          const sidebar = document.getElementById('sidebar');
+          const content = document.getElementById('content');
+          sidebar.classList.toggle('hidden');
+          content.classList.toggle('expanded');
+        });
+
+        // Product management
+        document.getElementById('addProductBtn').addEventListener('click', () => {
+          this.showProductModal();
+        });
+
+        document.getElementById('productForm').addEventListener('submit', (e) => {
+          e.preventDefault();
+          this.saveProduct();
+        });
+
+        // Article management
+        document.getElementById('addArticleBtn').addEventListener('click', () => {
+          this.showArticleModal();
+        });
+
+        document.getElementById('articleForm').addEventListener('submit', (e) => {
+          e.preventDefault();
+          this.saveArticle();
+        });
+
+        // Modal close buttons
+        document.getElementById('closeProductModal').addEventListener('click', () => {
+          document.getElementById('productModal').classList.add('hidden');
+        });
+
+        document.getElementById('closeArticleModal').addEventListener('click', () => {
+          document.getElementById('articleModal').classList.add('hidden');
+        });
+
+        document.getElementById('closeTransactionModal').addEventListener('click', () => {
+          document.getElementById('transactionModal').classList.add('hidden');
+        });
+
+        document.getElementById('cancelProduct').addEventListener('click', () => {
+          document.getElementById('productModal').classList.add('hidden');
+        });
+
+        document.getElementById('cancelArticle').addEventListener('click', () => {
+          document.getElementById('articleModal').classList.add('hidden');
+        });
+      },
+
+      switchTab(tab) {
+        // Update navigation
+        document.querySelectorAll('.nav-item').forEach(item => {
+          item.classList.remove('border-r-2', 'border-blue-600', 'bg-blue-50', 'text-blue-600');
+          item.classList.add('text-gray-700');
+        });
+
+        const activeItem = document.querySelector(`[data-tab="${tab}"]`);
+        activeItem.classList.remove('text-gray-700');
+        activeItem.classList.add('border-r-2', 'border-blue-600', 'bg-blue-50', 'text-blue-600');
+
+        // Update content
+        document.querySelectorAll('.tab-content').forEach(content => {
+          content.classList.remove('active');
+        });
+
+        document.getElementById(tab).classList.add('active');
+
+        // Update page title
+        const titles = {
+          dashboard: 'Dashboard',
+          products: 'Kelola Produk',
+          articles: 'Kelola Artikel',
+          transactions: 'Kelola Transaksi',
+          history: 'Histori Transaksi',
+          users: 'Kelola Pengguna'
+        };
+
+        document.getElementById('pageTitle').textContent = titles[tab];
+        this.currentTab = tab;
+
+        // Load tab content
+        switch(tab) {
+          case 'dashboard':
+            this.loadDashboard();
+            break;
+          case 'products':
+            this.loadProducts();
+            break;
+          case 'articles':
+            this.loadArticles();
+            break;
+          case 'transactions':
+            this.loadTransactions();
+            break;
+          case 'history':
+            this.loadHistory();
+            break;
+        }
+      },
+
+      updateDashboardStats() {
+        const products = AdminDataManager.getProducts();
+        const articles = AdminDataManager.getArticles();
+        const transactions = AdminDataManager.getTransactions();
+        const history = AdminDataManager.getTransactionHistory();
+
+        document.getElementById('totalProducts').textContent = products.length;
+        document.getElementById('totalArticles').textContent = articles.length;
+        document.getElementById('pendingTransactions').textContent = transactions.length;
+
+        // Calculate total sales from approved transactions
+        const totalSales = history
+          .filter(t => t.status === 'approved')
+          .reduce((sum, t) => sum + (t.total || 0), 0);
+        
+        document.getElementById('totalSales').textContent = `Rp ${totalSales.toLocaleString('id-ID')}`;
+      },
+
+      loadDashboard() {
+        this.updateDashboardStats();
+        
+        // Load recent transactions
+        const transactions = AdminDataManager.getTransactions().slice(-5);
+        const recentTransactionsHtml = transactions.length > 0 ? transactions.map(t => `
+          <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+            <div>
+              <div class="font-medium">TRX-${t.id}</div>
+              <div class="text-sm text-gray-600">${t.shipping?.fullName || 'N/A'}</div>
+            </div>
+            <div class="text-right">
+              <div class="font-semibold">Rp ${(t.total || 0).toLocaleString('id-ID')}</div>
+              <div class="text-sm status-${t.status}">${t.status}</div>
+            </div>
+          </div>
+        `).join('') : '<p class="text-gray-500 text-center py-4">Belum ada transaksi</p>';
+
+        document.getElementById('recentTransactions').innerHTML = recentTransactionsHtml;
+
+        // Load top products (mock data for now)
+        const products = AdminDataManager.getProducts().slice(0, 5);
+        const topProductsHtml = products.map(p => `
+          <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+            <div class="flex items-center space-x-3">
+              <img src="${p.image}" alt="${p.name}" class="w-10 h-10 object-contain">
+              <div>
+                <div class="font-medium">${p.name}</div>
+                <div class="text-sm text-gray-600">Stok: ${p.stock}</div>
+              </div>
+            </div>
+            <div class="text-right">
+              <div class="font-semibold">${p.price}</div>
+            </div>
+          </div>
+        `).join('');
+
+        document.getElementById('topProducts').innerHTML = topProductsHtml;
+      },
+
+      loadProducts() {
+        const products = AdminDataManager.getProducts();
+        const tableHtml = products.map(product => `
+          <tr>
+            <td class="px-6 py-4">
+              <div class="flex items-center space-x-3">
+                <img src="${product.image}" alt="${product.name}" class="w-12 h-12 object-contain">
+                <div>
+                  <div class="font-medium">${product.name}</div>
+                  <div class="text-sm text-gray-500">${product.description.substring(0, 50)}...</div>
+                </div>
+              </div>
+            </td>
+            <td class="px-6 py-4">
+              <span class="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">${product.category}</span>
+            </td>
+            <td class="px-6 py-4 font-semibold">${product.price}</td>
+            <td class="px-6 py-4">${product.stock}</td>
+            <td class="px-6 py-4">
+              <span class="px-2 py-1 text-xs font-medium ${product.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'} rounded-full">
+                ${product.status === 'active' ? 'Aktif' : 'Tidak Aktif'}
+              </span>
+            </td>
+            <td class="px-6 py-4">
+              <div class="flex space-x-2">
+                <button onclick="AdminUI.editProduct(${product.id})" class="text-blue-600 hover:text-blue-800">
+                  <i class="fas fa-edit"></i>
+                </button>
+                <button onclick="AdminUI.deleteProduct(${product.id})" class="text-red-600 hover:text-red-800">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+        `).join('');
+
+        document.getElementById('productsTable').innerHTML = tableHtml;
+      },
+
+      loadArticles() {
+        const articles = AdminDataManager.getArticles();
+        const tableHtml = articles.map(article => `
+          <tr>
+            <td class="px-6 py-4">
+              <div class="font-medium">${article.title}</div>
+              <div class="text-sm text-gray-500">${article.excerpt.substring(0, 80)}...</div>
+            </td>
+            <td class="px-6 py-4">
+              <span class="px-2 py-1 text-xs font-medium bg-purple-100 text-purple-800 rounded-full">${article.category}</span>
+            </td>
+            <td class="px-6 py-4">${article.author}</td>
+            <td class="px-6 py-4">${new Date(article.date).toLocaleDateString('id-ID')}</td>
+            <td class="px-6 py-4">
+              <span class="px-2 py-1 text-xs font-medium ${article.status === 'published' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'} rounded-full">
+                ${article.status === 'published' ? 'Published' : 'Draft'}
+              </span>
+            </td>
+            <td class="px-6 py-4">
+              <div class="flex space-x-2">
+                <button onclick="AdminUI.editArticle(${article.id})" class="text-blue-600 hover:text-blue-800">
+                  <i class="fas fa-edit"></i>
+                </button>
+                <button onclick="AdminUI.deleteArticle(${article.id})" class="text-red-600 hover:text-red-800">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+        `).join('');
+
+        document.getElementById('articlesTable').innerHTML = tableHtml;
+      },
+
+      loadTransactions() {
+        const transactions = AdminDataManager.getTransactions();
+        const tableHtml = transactions.length > 0 ? transactions.map(transaction => `
+          <tr>
+            <td class="px-6 py-4 font-medium">TRX-${transaction.id}</td>
+            <td class="px-6 py-4">${transaction.shipping?.fullName || 'N/A'}</td>
+            <td class="px-6 py-4 font-semibold">Rp ${(transaction.total || 0).toLocaleString('id-ID')}</td>
+            <td class="px-6 py-4">${new Date(transaction.date).toLocaleDateString('id-ID')}</td>
+            <td class="px-6 py-4">
+              <span class="px-2 py-1 text-xs font-medium status-${transaction.status} bg-yellow-100 text-yellow-800 rounded-full">
+                ${transaction.status}
+              </span>
+            </td>
+            <td class="px-6 py-4">
+              <div class="flex space-x-2">
+                <button onclick="AdminUI.viewTransaction(${transaction.id})" class="text-blue-600 hover:text-blue-800" title="Lihat Detail">
+                  <i class="fas fa-eye"></i>
+                </button>
+                <button onclick="AdminUI.approveTransaction(${transaction.id})" class="text-green-600 hover:text-green-800" title="Setujui">
+                  <i class="fas fa-check"></i>
+                </button>
+                <button onclick="AdminUI.rejectTransaction(${transaction.id})" class="text-red-600 hover:text-red-800" title="Tolak">
+                  <i class="fas fa-times"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+        `).join('') : '<tr><td colspan="6" class="px-6 py-4 text-center text-gray-500">Belum ada transaksi pending</td></tr>';
+
+        document.getElementById('transactionsTable').innerHTML = tableHtml;
+      },
+
+      loadHistory() {
+        const history = AdminDataManager.getTransactionHistory();
+        const tableHtml = history.length > 0 ? history.map(transaction => `
+          <tr>
+            <td class="px-6 py-4 font-medium">TRX-${transaction.id}</td>
+            <td class="px-6 py-4">${transaction.shipping?.fullName || 'N/A'}</td>
+            <td class="px-6 py-4 font-semibold">Rp ${(transaction.total || 0).toLocaleString('id-ID')}</td>
+            <td class="px-6 py-4">${new Date(transaction.date).toLocaleDateString('id-ID')}</td>
+            <td class="px-6 py-4">
+              <span class="px-2 py-1 text-xs font-medium ${transaction.status === 'approved' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'} rounded-full">
+                ${transaction.status}
+              </span>
+            </td>
+            <td class="px-6 py-4">
+              <button onclick="AdminUI.viewTransaction(${transaction.id}, true)" class="text-blue-600 hover:text-blue-800" title="Lihat Detail">
+                <i class="fas fa-eye"></i>
+              </button>
+            </td>
+          </tr>
+        `).join('') : '<tr><td colspan="6" class="px-6 py-4 text-center text-gray-500">Belum ada histori transaksi</td></tr>';
+
+        document.getElementById('historyTable').innerHTML = tableHtml;
+      },
+
+      // Product Management
+      showProductModal(product = null) {
+        const modal = document.getElementById('productModal');
+        const title = document.getElementById('productModalTitle');
+        
+        if (product) {
+          title.textContent = 'Edit Produk';
+          document.getElementById('productId').value = product.id;
+          document.getElementById('productName').value = product.name;
+          document.getElementById('productCategory').value = product.category;
+          document.getElementById('productPrice').value = product.priceNum;
+          document.getElementById('productStock').value = product.stock;
+          document.getElementById('productImage').value = product.image;
+          document.getElementById('productDescription').value = product.description;
+          document.getElementById('productStatus').value = product.status;
+          
+          // Isi form specs
+          if (product.specs) {
+            const specEntries = Object.entries(product.specs);
+            const specIds = ['specDisplay', 'specProcessor', 'specRAM', 'specStorage', 'specCamera', 'specBattery'];
+            const specValueIds = ['specDisplayValue', 'specProcessorValue', 'specRAMValue', 'specStorageValue', 'specCameraValue', 'specBatteryValue'];
+            
+            specEntries.forEach((entry, index) => {
+              if (index < specIds.length) {
+                document.getElementById(specIds[index]).value = entry[0];
+                document.getElementById(specValueIds[index]).value = entry[1];
+              }
+            });
+          }
+        } else {
+          title.textContent = 'Tambah Produk';
+          document.getElementById('productForm').reset();
+          document.getElementById('productId').value = '';
+          
+          // Reset form specs
+          const specIds = ['specDisplay', 'specProcessor', 'specRAM', 'specStorage', 'specCamera', 'specBattery'];
+          const specValueIds = ['specDisplayValue', 'specProcessorValue', 'specRAMValue', 'specStorageValue', 'specCameraValue', 'specBatteryValue'];
+          const defaultKeys = ['Display', 'Processor', 'RAM', 'Storage', 'Camera', 'Battery'];
+          
+          specIds.forEach((id, index) => {
+            document.getElementById(id).value = defaultKeys[index];
+            document.getElementById(specValueIds[index]).value = '';
+          });
+        }
+        
+        modal.classList.remove('hidden');
+      },
+
+      saveProduct() {
+        const products = AdminDataManager.getProducts();
+        const productId = document.getElementById('productId').value;
+        const priceNum = parseInt(document.getElementById('productPrice').value);
+        
+        // Buat specs object dari input form
+        const specs = {};
+        const specKeys = ['Display', 'Processor', 'RAM', 'Storage', 'Camera', 'Battery'];
+        const specIds = ['specDisplay', 'specProcessor', 'specRAM', 'specStorage', 'specCamera', 'specBattery'];
+        const specValueIds = ['specDisplayValue', 'specProcessorValue', 'specRAMValue', 'specStorageValue', 'specCameraValue', 'specBatteryValue'];
+
+        for (let i = 0; i < specIds.length; i++) {
+          const key = document.getElementById(specIds[i]).value || specKeys[i];
+          const value = document.getElementById(specValueIds[i]).value;
+          if (value) {
+            specs[key] = value;
+          }
+        }
+
+        const productData = {
+          name: document.getElementById('productName').value,
+          category: document.getElementById('productCategory').value,
+          priceNum: priceNum,
+          price: `Rp ${priceNum.toLocaleString('id-ID')}`,
+          stock: parseInt(document.getElementById('productStock').value),
+          image: document.getElementById('productImage').value,
+          description: document.getElementById('productDescription').value,
+          status: document.getElementById('productStatus').value,
+          specs: specs
+        };
+
+        if (productId) {
+          // Edit existing product
+          const index = products.findIndex(p => p.id == productId);
+          if (index !== -1) {
+            products[index] = { ...products[index], ...productData };
+          }
+        } else {
+          // Add new product
+          productData.id = Date.now();
+          products.push(productData);
+        }
+
+        AdminDataManager.saveProducts(products);
+        document.getElementById('productModal').classList.add('hidden');
+        this.loadProducts();
+        this.updateDashboardStats();
+        alert('Produk berhasil disimpan!');
+      },
+
+      editProduct(productId) {
+        const products = AdminDataManager.getProducts();
+        const product = products.find(p => p.id === productId);
+        if (product) {
+          this.showProductModal(product);
+        }
+      },
+
+      deleteProduct(productId) {
+        if (confirm('Apakah Anda yakin ingin menghapus produk ini?')) {
+          const products = AdminDataManager.getProducts();
+          const filteredProducts = products.filter(p => p.id !== productId);
+          AdminDataManager.saveProducts(filteredProducts);
+          this.loadProducts();
+          this.updateDashboardStats();
+          alert('Produk berhasil dihapus!');
+        }
+      },
+
+      // Article Management
+      showArticleModal(article = null) {
+        const modal = document.getElementById('articleModal');
+        const title = document.getElementById('articleModalTitle');
+        
+        if (article) {
+          title.textContent = 'Edit Artikel';
+          document.getElementById('articleId').value = article.id;
+          document.getElementById('articleTitle').value = article.title;
+          document.getElementById('articleCategory').value = article.category;
+          document.getElementById('articleAuthor').value = article.author;
+          document.getElementById('articleImage').value = article.image;
+          document.getElementById('articleExcerpt').value = article.excerpt;
+          document.getElementById('articleContent').value = article.content;
+          document.getElementById('articleStatus').value = article.status;
+        } else {
+          title.textContent = 'Tambah Artikel';
+          document.getElementById('articleForm').reset();
+          document.getElementById('articleId').value = '';
+        }
+        
+        modal.classList.remove('hidden');
+      },
+
+      saveArticle() {
+        const articles = AdminDataManager.getArticles();
+        const articleId = document.getElementById('articleId').value;
+        
+        const articleData = {
+          title: document.getElementById('articleTitle').value,
+          category: document.getElementById('articleCategory').value,
+          author: document.getElementById('articleAuthor').value,
+          image: document.getElementById('articleImage').value,
+          excerpt: document.getElementById('articleExcerpt').value,
+          content: document.getElementById('articleContent').value,
+          status: document.getElementById('articleStatus').value,
+          date: articleId ? articles.find(a => a.id == articleId)?.date : new Date().toISOString().split('T')[0]
+        };
+
+        if (articleId) {
+          // Edit existing article
+          const index = articles.findIndex(a => a.id == articleId);
+          if (index !== -1) {
+            articles[index] = { ...articles[index], ...articleData };
+          }
+        } else {
+          // Add new article
+          articleData.id = Date.now();
+          articles.push(articleData);
+        }
+
+        AdminDataManager.saveArticles(articles);
+        document.getElementById('articleModal').classList.add('hidden');
+        this.loadArticles();
+        this.updateDashboardStats();
+        alert('Artikel berhasil disimpan!');
+      },
+
+      editArticle(articleId) {
+        const articles = AdminDataManager.getArticles();
+        const article = articles.find(a => a.id === articleId);
+        if (article) {
+          this.showArticleModal(article);
+        }
+      },
+
+      deleteArticle(articleId) {
+        if (confirm('Apakah Anda yakin ingin menghapus artikel ini?')) {
+          const articles = AdminDataManager.getArticles();
+          const filteredArticles = articles.filter(a => a.id !== articleId);
+          AdminDataManager.saveArticles(filteredArticles);
+          this.loadArticles();
+          this.updateDashboardStats();
+          alert('Artikel berhasil dihapus!');
+        }
+      },
+
+      // Transaction Management
+      viewTransaction(transactionId, isHistory = false) {
+        const transactions = isHistory ? AdminDataManager.getTransactionHistory() : AdminDataManager.getTransactions();
+        const transaction = transactions.find(t => t.id === transactionId);
+        
+        if (!transaction) return;
+
+        const itemsHtml = transaction.items?.map(item => `
+          <div class="flex justify-between items-center py-2 border-b">
+            <div class="flex items-center space-x-3">
+              <img src="${item.image}" alt="${item.name}" class="w-12 h-12 object-contain">
+              <div>
+                <div class="font-medium">${item.name}</div>
+                <div class="text-sm text-gray-500">Qty: ${item.quantity}</div>
+              </div>
+            </div>
+            <div class="font-semibold">${item.price}</div>
+          </div>
+        `).join('') || '<p class="text-gray-500">Data item tidak tersedia</p>';
+
+        const detailHtml = `
+          <div class="space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <h3 class="font-semibold mb-3">Informasi Pelanggan</h3>
+                <div class="bg-gray-50 p-4 rounded-lg space-y-2">
+                  <div><strong>Nama:</strong> ${transaction.shipping?.fullName || 'N/A'}</div>
+                  <div><strong>Email:</strong> ${transaction.shipping?.email || 'N/A'}</div>
+                  <div><strong>Telepon:</strong> ${transaction.shipping?.phone || 'N/A'}</div>
+                  <div><strong>Alamat:</strong> ${transaction.shipping?.address || 'N/A'}</div>
+                </div>
+              </div>
+              
+              <div>
+                <h3 class="font-semibold mb-3">Informasi Pembayaran</h3>
+                <div class="bg-gray-50 p-4 rounded-lg space-y-2">
+                  <div><strong>Metode:</strong> ${transaction.payment?.method || 'N/A'}</div>
+                  <div><strong>Status:</strong> <span class="status-${transaction.status}">${transaction.status}</span></div>
+                  <div><strong>Tanggal:</strong> ${new Date(transaction.date).toLocaleDateString('id-ID')}</div>
+                  ${transaction.processedDate ? `<div><strong>Diproses:</strong> ${new Date(transaction.processedDate).toLocaleDateString('id-ID')}</div>` : ''}
+                </div>
+              </div>
+            </div>
+            
+            <div>
+              <h3 class="font-semibold mb-3">Item Pesanan</h3>
+              <div class="bg-gray-50 p-4 rounded-lg">
+                ${itemsHtml}
+                <div class="pt-4 mt-4 border-t">
+                  <div class="flex justify-between text-lg font-bold">
+                    <span>Total:</span>
+                    <span>Rp ${(transaction.total || 0).toLocaleString('id-ID')}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            ${!isHistory && transaction.status === 'pending' ? `
+              <div class="flex justify-end space-x-3">
+                <button onclick="AdminUI.rejectTransaction(${transaction.id})" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">
+                  Tolak Transaksi
+                </button>
+                <button onclick="AdminUI.approveTransaction(${transaction.id})" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
+                  Setujui Transaksi
+                </button>
+              </div>
+            ` : ''}
+          </div>
+        `;
+
+        document.getElementById('transactionDetail').innerHTML = detailHtml;
+        document.getElementById('transactionModal').classList.remove('hidden');
+      },
+
+      approveTransaction(transactionId) {
+        if (confirm('Apakah Anda yakin ingin menyetujui transaksi ini?')) {
+          if (AdminDataManager.approveTransaction(transactionId)) {
+            document.getElementById('transactionModal').classList.add('hidden');
+            this.loadTransactions();
+            this.updateDashboardStats();
+            alert('Transaksi berhasil disetujui!');
+          }
+        }
+      },
+
+      rejectTransaction(transactionId) {
+        if (confirm('Apakah Anda yakin ingin menolak transaksi ini?')) {
+          if (AdminDataManager.rejectTransaction(transactionId)) {
+            document.getElementById('transactionModal').classList.add('hidden');
+            this.loadTransactions();
+            this.updateDashboardStats();
+            alert('Transaksi berhasil ditolak!');
+          }
+        }
+      }
+    };
+
+    // Initialize Admin Panel
+    document.addEventListener('DOMContentLoaded', function() {
+      AdminUI.init();
+    });
+
+    // Close modals when clicking outside
+    window.onclick = (event) => {
+      const modals = ['productModal', 'articleModal', 'transactionModal'];
+      modals.forEach(modalId => {
+        const modal = document.getElementById(modalId);
+        if (event.target === modal) {
+          modal.classList.add('hidden');
+        }
+      });
+    };
+  </script>
+</body>
+</html>

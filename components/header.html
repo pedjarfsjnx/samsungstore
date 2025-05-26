@@ -1,0 +1,31 @@
+<!-- Header Component -->
+<header class="bg-white shadow-sm sticky top-0 z-50">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex justify-between items-center h-16">
+      <div class="flex items-center">
+        <a href="index.html">
+          <img alt="Samsung logo" class="w-[90px] h-[20px] object-contain" src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/24/Samsung_Logo.svg/2560px-Samsung_Logo.svg.png"/>
+        </a>
+      </div>
+      
+      <nav class="hidden md:flex space-x-8">
+        <a href="index.html" class="nav-link text-gray-700 hover:text-blue-600 font-medium">Beranda</a>
+        <a href="products.html" class="nav-link text-gray-700 hover:text-blue-600 font-medium">Produk</a>
+        <a href="articles.html" class="nav-link text-gray-700 hover:text-blue-600 font-medium">Artikel</a>
+        <a href="#contact" class="nav-link text-gray-700 hover:text-blue-600 font-medium">Kontak</a>
+      </nav>
+      
+      <div class="flex items-center space-x-4">
+        <div class="relative">
+          <button id="cartBtn" class="relative p-2 text-gray-600 hover:text-blue-600" onclick="window.location.href='cart.html'">
+            <i class="fas fa-shopping-cart text-xl"></i>
+            <span id="cartCount" class="cart-badge hidden">0</span>
+          </button>
+        </div>
+        <a href="admin.html" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+          Admin
+        </a>
+      </div>
+    </div>
+  </div>
+</header>

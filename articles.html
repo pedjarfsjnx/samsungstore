@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1" name="viewport"/>
+  <title>Samsung Store - Arsip Artikel</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Samsung+One&display=swap" rel="stylesheet"/>
+  <link href="assets/css/main.css" rel="stylesheet"/>
+</head>
+<body>
+  <!-- Header -->
+  <div id="header"></div>
+
+  <!-- Page Header -->
+  <section class="bg-blue-600 text-white py-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center">
+        <h1 class="text-3xl md:text-4xl font-bold mb-4">Arsip Artikel</h1>
+        <p class="text-xl opacity-90">Tips, review, dan berita teknologi terkini dari Samsung</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Articles Section -->
+  <section class="py-16 bg-gray-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <!-- Article Filter -->
+      <div class="flex justify-center mb-8">
+        <div class="flex space-x-4">
+          <button class="filter-btn active bg-blue-600 text-white px-6 py-2 rounded-lg" data-category="all">Semua</button>
+          <button class="filter-btn bg-gray-200 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-300" data-category="Review">Review</button>
+          <button class="filter-btn bg-gray-200 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-300" data-category="Tips">Tips</button>
+          <button class="filter-btn bg-gray-200 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-300" data-category="Update">Update</button>
+          <button class="filter-btn bg-gray-200 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-300" data-category="News">News</button>
+        </div>
+      </div>
+      
+      <div id="articleGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <!-- Articles will be loaded here -->
+      </div>
+      
+      <div class="text-center mt-12">
+        <button id="loadMoreBtn" class="bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700">
+          Muat Lebih Banyak
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <div id="footer"></div>
+
+  <!-- Scripts -->
+  <script src="assets/js/utils.js"></script>
+  <script src="assets/js/data-manager.js"></script>
+  <script src="assets/js/cart-manager.js"></script>
+  <script>
+    let currentPage = 1;
+    const articlesPerPage = 6;
+    let currentCategory = 'all';
+
+    // Load components
+    async function loadComponent(elementId, filePath) {
+      try {
+        const response = await fetch(filePath);
+        const html = await response.text();
+        document.getElementById(elementId).innerHTML = html;
+      } catch (error) {
+        console.error('Error loading component:', error);
+      }
+    }
+
+    // Initialize page
+    document.addEventListener('DOMContentLoaded', async function() {
+      // Load components
+      await loadComponent('header', 'components/header.html');
+      await loadComponent('footer', 'components/footer.html');
+      
+      // Initialize data
+      DataManager.init();
+      CartManager.updateCartUI();
+      
+      // Load articles
+      renderArticles();
+      setupFilters();
+      setupLoadMore();
+    });
+
+    function renderArticles(append = false) {
+      const allArticles = DataManager.getArticles().filter(a => a.status === 'published');
+      const filteredArticles = currentCategory === 'all' 
+        ? allArticles 
+        : allArticles.filter(a => a.category === currentCategory);
+      
+      const startIndex = append ? (currentPage - 1) * articlesPerPage : 0;
+      const endIndex = currentPage * articlesPerPage;
+      const articlesToShow = filteredArticles.slice(startIndex, endIndex);
+      
+      const articleGrid = document.getElementById('articleGrid');
+      const articlesHtml = articlesToShow.map(article => `
+        <div class="bg-white rounded-lg shadow-md overflow-hidden cursor-pointer hover:shadow-lg transition" onclick="window.location.href='article-detail.html?id=${article.id}'">
+          <img src="${article.image}" alt="${article.title}" class="w-full h-48 object-cover">
+          <div class="p-6">
+            <div class="text-sm text-blue-600 mb-2">${article.category}</div>
+            <h3 class="font-semibold text-lg mb-2 line-clamp-2">${article.title}</h3>
+            <p class="text-gray-600 mb-4 line-clamp-3">${article.excerpt}</p>
+            <div class="flex justify-between items-center text-sm text-gray-500">
+              <span>${article.author}</span>
+              <span>${Utils.formatDate(article.date)}</span>
+            </div>
+          </div>
+        </div>
+      `).join('');
+      
+      if (append) {
+        articleGrid.innerHTML += articlesHtml;
+      } else {
+        articleGrid.innerHTML = articlesHtml;
+      }
+      
+      // Show/hide load more button
+      const loadMoreBtn = document.getElementById('loadMoreBtn');
+      if (endIndex >= filteredArticles.length) {
+        loadMoreBtn.style.display = 'none';
+      } else {
+        loadMoreBtn.style.display = 'inline-block';
+      }
+    }
+
+    function setupFilters() {
+      document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          currentCategory = btn.dataset.category;
+          currentPage = 1;
+          filterArticles(currentCategory);
+        });
+      });
+    }
+
+    function filterArticles(category) {
+      currentCategory = category;
+      renderArticles();
+      
+      // Update filter buttons
+      document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.classList.remove('active', 'bg-blue-600', 'text-white');
+        btn.classList.add('bg-gray-200', 'text-gray-700');
+      });
+      
+      const activeBtn = document.querySelector(`[data-category="${category}"]`);
+      activeBtn.classList.remove('bg-gray-200', 'text-gray-700');
+      activeBtn.classList.add('active', 'bg-blue-600', 'text-white');
+    }
+
+    function setupLoadMore() {
+      document.getElementById('loadMoreBtn').addEventListener('click', () => {
+        currentPage++;
+        renderArticles(true);
+      });
+    }
+  </script>
+</body>
+</html>

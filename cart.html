@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1" name="viewport"/>
+  <title>Samsung Store - Keranjang Belanja</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Samsung+One&display=swap" rel="stylesheet"/>
+  <link href="assets/css/main.css" rel="stylesheet"/>
+</head>
+<body>
+  <div class="min-h-screen bg-gray-50">
+    <!-- Header -->
+    <header class="bg-white shadow-sm border-b p-4">
+      <div class="max-w-6xl mx-auto flex items-center justify-between">
+        <div class="flex items-center">
+          <a href="index.html" class="flex items-center mr-6">
+            <img alt="Samsung logo" class="w-[90px] h-[20px] object-contain" src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/24/Samsung_Logo.svg/2560px-Samsung_Logo.svg.png"/>
+          </a>
+          <h1 class="text-xl font-bold">Keranjang Belanja</h1>
+        </div>
+        <a href="index.html" class="text-blue-600 hover:underline">
+          <i class="fas fa-arrow-left mr-2"></i>Lanjut Belanja
+        </a>
+      </div>
+    </header>
+
+    <div class="max-w-6xl mx-auto p-6">
+      <div class="grid gap-6 lg:grid-cols-3">
+        <!-- Cart Items -->
+        <div class="lg:col-span-2">
+          <div class="bg-white rounded-lg shadow p-6">
+            <div id="emptyCart" class="text-center py-12 hidden">
+              <i class="fas fa-shopping-cart text-6xl text-gray-300 mb-4"></i>
+              <h2 class="text-xl font-semibold text-gray-600 mb-2">Keranjang Anda Kosong</h2>
+              <p class="text-gray-500 mb-6">Belum ada produk yang ditambahkan ke keranjang</p>
+              <a href="products.html" class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 inline-flex items-center">
+                <i class="fas fa-shopping-bag mr-2"></i>Mulai Belanja
+              </a>
+            </div>
+
+            <div id="cartItems">
+              <div class="flex items-center justify-between mb-6">
+                <h2 class="text-xl font-semibold">Item dalam Keranjang</h2>
+                <button id="clearCart" class="text-red-600 hover:text-red-800 text-sm">
+                  <i class="fas fa-trash mr-1"></i>Kosongkan Keranjang
+                </button>
+              </div>
+              <div id="cartItemsList">
+                <!-- Cart items will be populated here -->
+              </div>
+            </div>
+          </div>
+
+          <!-- Recommended Products -->
+          <div class="bg-white rounded-lg shadow p-6 mt-6">
+            <h3 class="text-lg font-semibold mb-4">Produk Rekomendasi</h3>
+            <div id="recommendedProducts" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <!-- Recommended products will be populated here -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Order Summary -->
+        <div class="lg:col-span-1">
+          <div class="bg-white rounded-lg shadow p-6 sticky top-4">
+            <h3 class="text-lg font-semibold mb-4">Ringkasan Pesanan</h3>
+            
+            <div class="space-y-3 mb-6">
+              <div class="flex justify-between">
+                <span class="text-gray-600">Subtotal (<span id="itemCount">0</span> item)</span>
+                <span id="subtotal" class="font-semibold">Rp 0</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-gray-600">Ongkos Kirim</span>
+                <span id="shipping" class="font-semibold">Rp 25.000</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-gray-600">Pajak (10%)</span>
+                <span id="tax" class="font-semibold">Rp 0</span>
+              </div>
+              <hr class="my-3">
+              <div class="flex justify-between text-lg font-bold">
+                <span>Total</span>
+                <span id="total" class="text-blue-600">Rp 0</span>
+              </div>
+            </div>
+
+            <!-- Promo Code -->
+            <div class="mb-6">
+              <label class="block text-sm font-medium text-gray-700 mb-2">Kode Promo</label>
+              <div class="flex space-x-2">
+                <input type="text" id="promoCode" placeholder="Masukkan kode promo" class="flex-1 border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <button id="applyPromo" class="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700">
+                  Terapkan
+                </button>
+              </div>
+              <div id="promoMessage" class="text-sm mt-2 hidden"></div>
+            </div>
+
+            <!-- Checkout Button -->
+            <button id="checkoutBtn" class="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed mb-3" disabled>
+              <i class="fas fa-credit-card mr-2"></i>Lanjut ke Pembayaran
+            </button>
+            
+            <div class="text-center">
+              <a href="products.html" class="text-blue-600 hover:underline text-sm">
+                <i class="fas fa-arrow-left mr-1"></i>Lanjut Belanja
+              </a>
+            </div>
+
+            <!-- Security Info -->
+            <div class="mt-6 p-3 bg-gray-50 rounded-lg">
+              <div class="flex items-center text-sm text-gray-600">
+                <i class="fas fa-shield-alt text-green-600 mr-2"></i>
+                <span>Pembayaran aman dengan enkripsi SSL</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="assets/js/utils.js"></script>
+  <script src="assets/js/data-manager.js"></script>
+  <script src="assets/js/cart-manager.js"></script>
+  <script src="assets/js/cart.js"></script>
+</body>
+</html>
