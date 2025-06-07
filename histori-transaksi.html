@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1" name="viewport"/>
+  <title>Samsung Store - Histori Transaksi</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Samsung+One&display=swap" rel="stylesheet"/>
+  <link href="assets/css/main.css" rel="stylesheet"/>
+  <style>
+    body {
+      font-family: 'Samsung One', Arial, sans-serif;
+    }
+    .status-pending { color: #f59e0b; }
+    .status-approved { color: #10b981; }
+    .status-rejected { color: #ef4444; }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <div id="header"></div>
+
+  <!-- Main Content -->
+  <div class="p-6">
+    <div class="bg-white rounded-lg shadow">
+      <div class="p-6 border-b">
+        <h2 class="text-xl font-semibold">Histori Transaksi</h2>
+        <p class="text-gray-600 mt-1">Riwayat transaksi yang telah diproses</p>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">ID Transaksi</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Total</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Tanggal</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+            </tr>
+          </thead>
+          <tbody id="historyTable" class="divide-y divide-gray-200">
+            <!-- History will be loaded here -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Transaction Detail Modal -->
+  <div id="transactionModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+    <div class="bg-white rounded-lg max-w-3xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+      <div class="p-6">
+        <div class="flex justify-between items-center mb-6">
+          <h2 class="text-xl font-bold">Detail Transaksi</h2>
+          <button id="closeTransactionModal" class="text-gray-500 hover:text-gray-700">
+            <i class="fas fa-times text-xl"></i>
+          </button>
+        </div>
+        
+        <div id="transactionDetail">
+          <!-- Transaction details will be loaded here -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+ 
+
+  <!-- Scripts -->
+  <script src="assets/js/utils.js"></script>
+  <script src="assets/js/data-manager.js"></script>
+  <script src="assets/js/cart-manager.js"></script>
+  <script>
+    // Load components
+    async function loadComponent(elementId, filePath) {
+      try {
+        const response = await fetch(filePath);
+        const html = await response.text();
+        document.getElementById(elementId).innerHTML = html;
+      } catch (error) {
+        console.error('Error loading component:', error);
+      }
+    }
+
+    // Initialize page
+    document.addEventListener('DOMContentLoaded', async function() {
+      // Load components
+      await loadComponent('header', 'components/header.html');
+      await loadComponent('footer', 'components/footer.html');
+      
+      // Initialize data
+      DataManager.init();
+      CartManager.updateCartUI();
+      
+      // Data Manager untuk Histori
+      const HistoryDataManager = {
+        getTransactionHistory() {
+          return JSON.parse(localStorage.getItem('samsungTransactionHistory')) || [];
+        }
+      };
+
+      // UI Manager untuk Histori
+      const HistoryUI = {
+        init() {
+          this.setupEventListeners();
+          this.loadHistory();
+        },
+
+        setupEventListeners() {
+          // Modal close button
+          document.getElementById('closeTransactionModal').addEventListener('click', () => {
+            document.getElementById('transactionModal').classList.add('hidden');
+          });
+        },
+
+        loadHistory() {
+          const history = HistoryDataManager.getTransactionHistory();
+          const tableHtml = history.length > 0 ? history.map(transaction => `
+            <tr>
+              <td class="px-6 py-4 font-medium">TRX-${transaction.id}</td>
+              <td class="px-6 py-4 font-semibold">Rp ${(transaction.total || 0).toLocaleString('id-ID')}</td>
+              <td class="px-6 py-4">${new Date(transaction.date).toLocaleDateString('id-ID')}</td>
+              <td class="px-6 py-4">
+                <span class="px-2 py-1 text-xs font-medium ${transaction.status === 'approved' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'} rounded-full">
+                  ${transaction.status}
+                </span>
+              </td>
+              
+            </tr>
+          `).join('') : '<tr><td colspan="5" class="px-6 py-4 text-center text-gray-500">Belum ada histori transaksi</td></tr>';
+
+          document.getElementById('historyTable').innerHTML = tableHtml;
+        },
+
+        viewTransaction(transactionId) {
+          const history = HistoryDataManager.getTransactionHistory();
+          const transaction = history.find(t => t.id === transactionId);
+          
+          if (!transaction) return;
+
+          const itemsHtml = transaction.items?.map(item => `
+            <div class="flex justify-between items-center py-2 border-b">
+              <div class="flex items-center space-x-3">
+                <img src="${item.image}" alt="${item.name}" class="w-12 h-12 object-contain">
+                <div>
+                  <div class="font-medium">${item.name}</div>
+                  <div class="text-sm text-gray-500">Qty: ${item.quantity}</div>
+                </div>
+              </div>
+              <div class="font-semibold">${item.price}</div>
+            </div>
+          `).join('') || '<p class="text-gray-500">Data item tidak tersedia</p>';
+
+          const detailHtml = `
+            <div class="space-y-6">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <h3 class="font-semibold mb-3">Informasi Pelanggan</h3>
+                  <div class="bg-gray-50 p-4 rounded-lg space-y-2">
+                    <div><strong>Nama:</strong> ${transaction.shipping?.fullName || 'N/A'}</div>
+                    <div><strong>Email:</strong> ${transaction.shipping?.email || 'N/A'}</div>
+                    <div><strong>Telepon:</strong> ${transaction.shipping?.phone || 'N/A'}</div>
+                    <div><strong>Alamat:</strong> ${transaction.shipping?.address || 'N/A'}</div>
+                  </div>
+                </div>
+                
+                <div>
+                  <h3 class="font-semibold mb-3">Informasi Pembayaran</h3>
+                  <div class="bg-gray-50 p-4 rounded-lg space-y-2">
+                    <div><strong>Metode:</strong> ${transaction.payment?.method || 'N/A'}</div>
+                    <div><strong>Status:</strong> <span class="status-${transaction.status}">${transaction.status}</span></div>
+                    <div><strong>Tanggal:</strong> ${new Date(transaction.date).toLocaleDateString('id-ID')}</div>
+                    ${transaction.processedDate ? `<div><strong>Diproses:</strong> ${new Date(transaction.processedDate).toLocaleDateString('id-ID')}</div>` : ''}
+                  </div>
+                </div>
+              </div>
+              
+              <div>
+                <h3 class="font-semibold mb-3">Item Pesanan</h3>
+                <div class="bg-gray-50 p-4 rounded-lg">
+                  ${itemsHtml}
+                  <div class="pt-4 mt-4 border-t">
+                    <div class="flex justify-between text-lg font-bold">
+                      <span>Total:</span>
+                      <span>Rp ${(transaction.total || 0).toLocaleString('id-ID')}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          `;
+
+          document.getElementById('transactionDetail').innerHTML = detailHtml;
+          document.getElementById('transactionModal').classList.remove('hidden');
+        }
+      };
+
+      // Initialize History Page
+      HistoryUI.init();
+
+      // Close modal when clicking outside
+      window.onclick = (event) => {
+        const modal = document.getElementById('transactionModal');
+        if (event.target === modal) {
+          modal.classList.add('hidden');
+        }
+      };
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1" name="viewport"/>
+  <title>Samsung Store - Login</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Samsung+One&display=swap" rel="stylesheet"/>
+  <link href="assets/css/main.css" rel="stylesheet"/>
+</head>
+<body>
+  <div class="min-h-screen bg-gray-50 flex items-center justify-center">
+    <div class="bg-white rounded-lg shadow-lg p-8 w-full max-w-md">
+      <div class="text-center mb-8">
+        <a href="index.html">
+          <img alt="Samsung logo" class="w-[120px] h-[26px] object-contain mx-auto" src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/24/Samsung_Logo.svg/2560px-Samsung_Logo.svg.png"/>
+        </a>
+        <h1 class="text-2xl font-bold mt-6">Masuk ke Akun Anda</h1>
+        <p class="text-gray-600 mt-2">Masukkan username dan password Anda</p>
+      </div>
+
+      <div id="error-message" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4 hidden"></div>
+
+      <form id="login-form">
+        <div class="mb-4">
+          <label for="username" class="block text-gray-700 text-sm font-medium mb-2">Username</label>
+          <div class="relative">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <i class="fas fa-user text-gray-400"></i>
+            </div>
+            <input type="text" id="username" name="username" class="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+          </div>
+        </div>
+
+        <div class="mb-6">
+          <label for="password" class="block text-gray-700 text-sm font-medium mb-2">Password</label>
+          <div class="relative">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <i class="fas fa-lock text-gray-400"></i>
+            </div>
+            <input type="password" id="password" name="password" class="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+          </div>
+        </div>
+
+        <button type="submit" class="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+          Masuk
+        </button>
+      </form>
+
+      <div class="mt-6 text-center">
+        <p class="text-gray-600">Belum punya akun? <a href="register.html" class="text-blue-600 hover:underline">Daftar</a></p>
+      </div>
+
+      <div class="mt-8 pt-6 border-t border-gray-200">
+        <div class="flex justify-center">
+          <a href="index.html" class="text-gray-600 hover:text-blue-600">
+            <i class="fas fa-arrow-left mr-2"></i>Kembali ke Beranda
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Login functionality
+    document.getElementById('login-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+      const errorMessage = document.getElementById('error-message');
+      
+      // Get users from localStorage
+      const users = JSON.parse(localStorage.getItem('samsungUsers')) || [];
+      
+      // Find user with matching credentials
+      const user = users.find(u => u.username === username && u.password === password);
+      
+      if (user) {
+        // Store logged in user info in sessionStorage
+        sessionStorage.setItem('currentUser', JSON.stringify({
+          id: user.id,
+          username: user.username,
+          fullname: user.fullname,
+          email: user.email,
+          role: user.role
+        }));
+        
+        // Redirect based on role
+        if (user.role === 'admin') {
+          window.location.href = 'admin.html';
+        } else {
+          window.location.href = 'index.html';
+        }
+      } else {
+        // Show error message
+        errorMessage.textContent = 'Username atau password salah';
+        errorMessage.classList.remove('hidden');
+      }
+    });
+
+    // Initialize default admin if no users exist
+    if (!localStorage.getItem('samsungUsers')) {
+      const defaultAdmin = {
+        id: 1,
+        username: 'admin',
+        password: 'admin123',
+        fullname: 'Administrator',
+        email: 'admin@samsungstore.com',
+        role: 'admin'
+      };
+      
+      localStorage.setItem('samsungUsers', JSON.stringify([defaultAdmin]));
+    }
+  </script>
+</body>
+</html>

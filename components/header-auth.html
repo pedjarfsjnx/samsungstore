@@ -1,0 +1,122 @@
+<!-- Header Component with Auth -->
+<header class="bg-white shadow-sm sticky top-0 z-50">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex justify-between items-center h-16">
+      <div class="flex items-center">
+        <a href="index.html">
+          <img alt="Samsung logo" class="w-[90px] h-[20px] object-contain" src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/24/Samsung_Logo.svg/2560px-Samsung_Logo.svg.png"/>
+        </a>
+      </div>
+      
+      <nav class="hidden md:flex space-x-8">
+        <a href="index.html" class="nav-link text-gray-700 hover:text-blue-600 font-medium">Beranda</a>
+        <a href="products.html" class="nav-link text-gray-700 hover:text-blue-600 font-medium">Produk</a>
+        <a href="articles.html" class="nav-link text-gray-700 hover:text-blue-600 font-medium">Artikel</a>
+        <a href="about.html" class="nav-link text-gray-700 hover:text-blue-600 font-medium">Tentang</a>
+        <a href="#contact" class="nav-link text-gray-700 hover:text-blue-600 font-medium">Kontak</a>
+      </nav>
+      
+      <div class="flex items-center space-x-4">
+        <div class="relative">
+          <button id="cartBtn" class="relative p-2 text-gray-600 hover:text-blue-600" onclick="window.location.href='cart.html'">
+            <i class="fas fa-shopping-cart text-xl"></i>
+            <span id="cartCount" class="cart-badge hidden">0</span>
+          </button>
+        </div>
+        
+        <!-- User Menu (Logged In) -->
+        <div id="userMenu" class="relative hidden">
+          <button id="userMenuBtn" class="flex items-center space-x-2 text-gray-700 hover:text-blue-600">
+            <div class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
+              <i class="fas fa-user text-white text-sm"></i>
+            </div>
+            <span id="userDisplayName" class="hidden md:inline-block"></span>
+            <i class="fas fa-chevron-down text-xs"></i>
+          </button>
+          
+          <div id="userDropdown" class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 hidden">
+            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Profil Saya</a>
+            <a href="histori-transaksi.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Riwayat Pesanan</a>
+            <div class="border-t border-gray-100"></div>
+            <a href="#" id="logoutBtn" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+              <i class="fas fa-sign-out-alt mr-2"></i>Keluar
+            </a>
+          </div>
+        </div>
+        
+        <!-- Auth Links (Logged Out) -->
+        <div id="authLinks" class="flex items-center space-x-4">
+          <a href="login.html" class="text-gray-700 hover:text-blue-600">Masuk</a>
+          <a href="register.html" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+            Daftar
+          </a>
+        </div>
+        
+        <!-- Admin Link (For Admin Users) -->
+        <a href="admin.html" id="adminLink" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 hidden">
+          Admin
+        </a>
+      </div>
+    </div>
+  </div>
+</header>
+
+<script>
+  // Update header based on authentication status
+  document.addEventListener('DOMContentLoaded', function() {
+    const userMenu = document.getElementById('userMenu');
+    const authLinks = document.getElementById('authLinks');
+    const adminLink = document.getElementById('adminLink');
+    const userDisplayName = document.getElementById('userDisplayName');
+    const userMenuBtn = document.getElementById('userMenuBtn');
+    const userDropdown = document.getElementById('userDropdown');
+    const logoutBtn = document.getElementById('logoutBtn');
+    
+    // Check if user is logged in
+    const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
+    
+    if (currentUser) {
+      // User is logged in
+      userMenu.classList.remove('hidden');
+      authLinks.classList.add('hidden');
+      
+      // Set user display name
+      if (userDisplayName) {
+        userDisplayName.textContent = currentUser.fullname;
+      }
+      
+      // Show admin link if user is admin
+      if (currentUser.role === 'admin') {
+        adminLink.classList.remove('hidden');
+      }
+      
+      // Toggle dropdown menu
+      if (userMenuBtn) {
+        userMenuBtn.addEventListener('click', function() {
+          userDropdown.classList.toggle('hidden');
+        });
+      }
+      
+      // Close dropdown when clicking outside
+      document.addEventListener('click', function(event) {
+        if (!userMenuBtn.contains(event.target) && !userDropdown.contains(event.target)) {
+          userDropdown.classList.add('hidden');
+        }
+      });
+      
+      // Logout functionality
+      if (logoutBtn) {
+        logoutBtn.addEventListener('click', function(e) {
+          e.preventDefault();
+          sessionStorage.removeItem('currentUser');
+          window.location.reload();
+        });
+      }
+    } else {
+      // User is not logged in
+      userMenu.classList.add('hidden');
+      authLinks.classList.remove('hidden');
+      adminLink.classList.add('hidden');
+    }
+  });
+</script>

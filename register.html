@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1" name="viewport"/>
+  <title>Samsung Store - Registrasi</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Samsung+One&display=swap" rel="stylesheet"/>
+  <link href="assets/css/main.css" rel="stylesheet"/>
+  <link href="assets/css/auth.css" rel="stylesheet"/>
+</head>
+<body>
+  <div class="min-h-screen bg-gray-50 flex items-center justify-center py-12">
+    <div class="bg-white rounded-lg shadow-lg p-8 w-full max-w-md">
+      <div class="text-center mb-8">
+        <a href="index.html">
+          <img alt="Samsung logo" class="w-[120px] h-[26px] object-contain mx-auto" src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/24/Samsung_Logo.svg/2560px-Samsung_Logo.svg.png"/>
+        </a>
+        <h1 class="text-2xl font-bold mt-6">Buat Akun Baru</h1>
+        <p class="text-gray-600 mt-2">Daftar untuk mendapatkan pengalaman belanja terbaik</p>
+      </div>
+
+      <div id="error-message" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4 hidden"></div>
+
+      <form id="register-form">
+        <div class="mb-4">
+          <label for="fullname" class="block text-gray-700 text-sm font-medium mb-2">Nama Lengkap</label>
+          <input type="text" id="fullname" name="fullname" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+        </div>
+
+        <div class="mb-4">
+          <label for="username" class="block text-gray-700 text-sm font-medium mb-2">Username</label>
+          <input type="text" id="username" name="username" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+        </div>
+
+        <div class="mb-4">
+          <label for="email" class="block text-gray-700 text-sm font-medium mb-2">Email</label>
+          <input type="email" id="email" name="email" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+        </div>
+
+        <div class="mb-4">
+          <label for="password" class="block text-gray-700 text-sm font-medium mb-2">Password</label>
+          <input type="password" id="password" name="password" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+        </div>
+
+        <div class="mb-6">
+          <label for="confirm-password" class="block text-gray-700 text-sm font-medium mb-2">Konfirmasi Password</label>
+          <input type="password" id="confirm-password" name="confirm-password" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+        </div>
+
+        <button type="submit" class="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+          Daftar
+        </button>
+      </form>
+
+      <div class="mt-6 text-center">
+        <p class="text-gray-600">Sudah punya akun? <a href="login.html" class="text-blue-600 hover:underline">Masuk</a></p>
+      </div>
+
+      <div class="mt-8 pt-6 border-t border-gray-200">
+        <div class="flex justify-center">
+          <a href="index.html" class="text-gray-600 hover:text-blue-600">
+            <i class="fas fa-arrow-left mr-2"></i>Kembali ke Beranda
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Registration functionality
+    document.getElementById('register-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const fullname = document.getElementById('fullname').value;
+      const username = document.getElementById('username').value;
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      const confirmPassword = document.getElementById('confirm-password').value;
+      const errorMessage = document.getElementById('error-message');
+      
+      // Validate passwords match
+      if (password !== confirmPassword) {
+        errorMessage.textContent = 'Password tidak cocok';
+        errorMessage.classList.remove('hidden');
+        return;
+      }
+      
+      // Get users from localStorage
+      const users = JSON.parse(localStorage.getItem('samsungUsers')) || [];
+      
+      // Check if username already exists
+      if (users.some(u => u.username === username)) {
+        errorMessage.textContent = 'Username sudah digunakan';
+        errorMessage.classList.remove('hidden');
+        return;
+      }
+      
+      // Check if email already exists
+      if (users.some(u => u.email === email)) {
+        errorMessage.textContent = 'Email sudah digunakan';
+        errorMessage.classList.remove('hidden');
+        return;
+      }
+      
+      // Create new user
+      const newUser = {
+        id: users.length > 0 ? Math.max(...users.map(u => u.id)) + 1 : 1,
+        username,
+        password,
+        fullname,
+        email,
+        role: 'user'
+      };
+      
+      // Add user to array and save to localStorage
+      users.push(newUser);
+      localStorage.setItem('samsungUsers', JSON.stringify(users));
+      
+      // Redirect to login page
+      alert('Registrasi berhasil! Silakan login.');
+      window.location.href = 'login.html';
+    });
+  </script>
+</body>
+</html>
