@@ -255,7 +255,7 @@
       <div class="bg-white rounded-lg shadow">
         <div class="p-6 border-b">
           <h2 class="text-xl font-semibold">Histori Transaksi</h2>
-          <p class="text-gray-600 mt-1">Riwayat transaksi yang telah diproses</p>
+          <p class="text-gray-600 mt-1">Semua riwayat transaksi (pending, approved, rejected)</p>
         </div>
         <div class="overflow-x-auto">
           <table class="w-full">
@@ -499,6 +499,16 @@
 
       saveTransactionHistory(history) {
         localStorage.setItem('samsungTransactionHistory', JSON.stringify(history));
+      },
+
+      // Get all transactions (pending + processed) for history view
+      getAllTransactions() {
+        const pending = this.getTransactions();
+        const processed = this.getTransactionHistory();
+        
+        // Combine and sort by date (newest first)
+        const allTransactions = [...pending, ...processed];
+        return allTransactions.sort((a, b) => new Date(b.date) - new Date(a.date));
       },
 
       approveTransaction(transactionId) {
@@ -829,25 +839,41 @@
       },
 
       loadHistory() {
-        const history = AdminDataManager.getTransactionHistory();
-        const tableHtml = history.length > 0 ? history.map(transaction => `
-          <tr>
-            <td class="px-6 py-4 font-medium">TRX-${transaction.id}</td>
-            <td class="px-6 py-4">${transaction.shipping?.fullName || 'N/A'}</td>
-            <td class="px-6 py-4 font-semibold">Rp ${(transaction.total || 0).toLocaleString('id-ID')}</td>
-            <td class="px-6 py-4">${new Date(transaction.date).toLocaleDateString('id-ID')}</td>
-            <td class="px-6 py-4">
-              <span class="px-2 py-1 text-xs font-medium ${transaction.status === 'approved' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'} rounded-full">
-                ${transaction.status}
-              </span>
-            </td>
-            <td class="px-6 py-4">
-              <button onclick="AdminUI.viewTransaction(${transaction.id}, true)" class="text-blue-600 hover:text-blue-800" title="Lihat Detail">
-                <i class="fas fa-eye"></i>
-              </button>
-            </td>
-          </tr>
-        `).join('') : '<tr><td colspan="6" class="px-6 py-4 text-center text-gray-500">Belum ada histori transaksi</td></tr>';
+        // Get all transactions (pending + processed) sorted by date
+        const allTransactions = AdminDataManager.getAllTransactions();
+        
+        const tableHtml = allTransactions.length > 0 ? allTransactions.map(transaction => {
+          // Determine if transaction is from pending or processed list
+          const isPending = transaction.status === 'pending';
+          
+          return `
+            <tr>
+              <td class="px-6 py-4 font-medium">TRX-${transaction.id}</td>
+              <td class="px-6 py-4">${transaction.shipping?.fullName || 'N/A'}</td>
+              <td class="px-6 py-4 font-semibold">Rp ${(transaction.total || 0).toLocaleString('id-ID')}</td>
+              <td class="px-6 py-4">${new Date(transaction.date).toLocaleDateString('id-ID')}</td>
+              <td class="px-6 py-4">
+                <span class="px-2 py-1 text-xs font-medium ${
+                  transaction.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                  transaction.status === 'approved' ? 'bg-green-100 text-green-800' : 
+                  'bg-red-100 text-red-800'
+                } rounded-full">
+                  ${transaction.status}
+                </span>
+              </td>
+              <td class="px-6 py-4">
+                <div class="flex space-x-2">
+                  <button onclick="AdminUI.viewTransaction(${transaction.id}, ${!isPending})" class="text-blue-600 hover:text-blue-800" title="Lihat Detail">
+                    <i class="fas fa-eye"></i>
+                  </button>
+                  ${isPending ? `
+                   
+                  ` : ''}
+                </div>
+              </td>
+            </tr>
+          `;
+        }).join('') : '<tr><td colspan="6" class="px-6 py-4 text-center text-gray-500">Belum ada transaksi</td></tr>';
 
         document.getElementById('historyTable').innerHTML = tableHtml;
       },
@@ -1049,7 +1075,13 @@
       // Transaction Management
       viewTransaction(transactionId, isHistory = false) {
         const transactions = isHistory ? AdminDataManager.getTransactionHistory() : AdminDataManager.getTransactions();
-        const transaction = transactions.find(t => t.id === transactionId);
+        let transaction = transactions.find(t => t.id === transactionId);
+        
+        // If not found in the specified list, search in the other list
+        if (!transaction) {
+          const otherTransactions = isHistory ? AdminDataManager.getTransactions() : AdminDataManager.getTransactionHistory();
+          transaction = otherTransactions.find(t => t.id === transactionId);
+        }
         
         if (!transaction) return;
 
@@ -1103,7 +1135,7 @@
               </div>
             </div>
             
-            ${!isHistory && transaction.status === 'pending' ? `
+            ${transaction.status === 'pending' ? `
               <div class="flex justify-end space-x-3">
                 <button onclick="AdminUI.rejectTransaction(${transaction.id})" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">
                   Tolak Transaksi
@@ -1125,6 +1157,7 @@
           if (AdminDataManager.approveTransaction(transactionId)) {
             document.getElementById('transactionModal').classList.add('hidden');
             this.loadTransactions();
+            this.loadHistory(); // Refresh history as well
             this.updateDashboardStats();
             alert('Transaksi berhasil disetujui!');
           }
@@ -1136,6 +1169,7 @@
           if (AdminDataManager.rejectTransaction(transactionId)) {
             document.getElementById('transactionModal').classList.add('hidden');
             this.loadTransactions();
+            this.loadHistory(); // Refresh history as well
             this.updateDashboardStats();
             alert('Transaksi berhasil ditolak!');
           }
