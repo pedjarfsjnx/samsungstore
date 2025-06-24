@@ -26,17 +26,17 @@
     <div class="bg-white rounded-lg shadow">
       <div class="p-6 border-b">
         <h2 class="text-xl font-semibold">Histori Transaksi</h2>
-        <p class="text-gray-600 mt-1">Riwayat Transaksi </p>
+        <p class="text-gray-600 mt-1">Semua riwayat transaksi (pending, approved, rejected)</p>
       </div>
       <div class="overflow-x-auto">
         <table class="w-full">
           <thead class="bg-gray-50">
             <tr>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">ID Transaksi</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Pelanggan</th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Total</th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Tanggal</th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Aksi</th>
             </tr>
           </thead>
           <tbody id="historyTable" class="divide-y divide-gray-200">
@@ -47,7 +47,26 @@
     </div>
   </div>
 
+  <!-- Transaction Detail Modal -->
+  <div id="transactionModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+    <div class="bg-white rounded-lg max-w-3xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+      <div class="p-6">
+        <div class="flex justify-between items-center mb-6">
+          <h2 class="text-xl font-bold">Detail Transaksi</h2>
+          <button id="closeTransactionModal" class="text-gray-500 hover:text-gray-700">
+            <i class="fas fa-times text-xl"></i>
+          </button>
+        </div>
+        
+        <div id="transactionDetail">
+          <!-- Transaction details will be loaded here -->
+        </div>
+      </div>
+    </div>
+  </div>
+
   
+
   <!-- Scripts -->
   <script src="assets/js/utils.js"></script>
   <script src="assets/js/data-manager.js"></script>
@@ -77,27 +96,38 @@
       // Data Manager untuk Histori
       const HistoryDataManager = {
         getTransactionHistory() {
-          return JSON.parse(localStorage.getItem('samsungTransactionHistory')) || [];
+          return JSON.parse(localStorage.getItem('samsungTransactionHistory') || '[]');
         }
       };
 
       // UI Manager untuk Histori
-      const HistoryUI = {
+      window.HistoryUI = {
         init() {
           this.setupEventListeners();
           this.loadHistory();
         },
 
         setupEventListeners() {
-          // No additional event listeners needed for now
+          // Modal close button
+          document.getElementById('closeTransactionModal').addEventListener('click', () => {
+            document.getElementById('transactionModal').classList.add('hidden');
+          });
+
+          // Close modal when clicking outside
+          window.onclick = (event) => {
+            const modal = document.getElementById('transactionModal');
+            if (event.target === modal) {
+              modal.classList.add('hidden');
+            }
+          };
         },
 
         loadHistory() {
           const history = HistoryDataManager.getTransactionHistory();
+          console.log('Transaction History:', history); // Debugging
           const tableHtml = history.length > 0 ? history.map(transaction => `
             <tr>
               <td class="px-6 py-4 font-medium">${transaction.id ? `TRX-${transaction.id.toString().slice(-6)}` : "N/A"}</td>
-              <td class="px-6 py-4">${transaction.shipping?.fullName || "N/A"}</td>
               <td class="px-6 py-4 font-semibold">Rp ${(transaction.total || 0).toLocaleString('id-ID')}</td>
               <td class="px-6 py-4">${new Date(transaction.date).toLocaleDateString('id-ID') || "N/A"}</td>
               <td class="px-6 py-4">
@@ -106,12 +136,80 @@
                 </span>
               </td>
               <td class="px-6 py-4">
-                <!-- Aksi placeholder -->
+                <button onclick="HistoryUI.viewTransaction(${transaction.id})" class="text-blue-600 hover:text-blue-800" title="Lihat Detail">
+                  <i class="fas fa-eye"></i>
+                </button>
               </td>
             </tr>
           `).join('') : '<tr><td colspan="6" class="px-6 py-4 text-center text-gray-500">Belum ada histori transaksi</td></tr>';
 
           document.getElementById('historyTable').innerHTML = tableHtml;
+        },
+
+        viewTransaction(transactionId) {
+          console.log('Viewing transaction ID:', transactionId); // Debugging
+          const history = HistoryDataManager.getTransactionHistory();
+          const transaction = history.find(t => t.id === transactionId);
+          
+          if (!transaction) {
+            console.error('Transaction not found for ID:', transactionId);
+            document.getElementById('transactionDetail').innerHTML = '<p class="text-red-500">Transaksi tidak ditemukan.</p>';
+            document.getElementById('transactionModal').classList.remove('hidden');
+            return;
+          }
+
+          const itemsHtml = transaction.items?.map(item => `
+            <div class="flex justify-between items-center py-2 border-b">
+              <div class="flex items-center space-x-3">
+                <img src="${item.image || 'https://via.placeholder.com/48'}" alt="${item.name}" class="w-12 h-12 object-contain">
+                <div>
+                  <div class="font-medium">${item.name || 'N/A'}</div>
+                  <div class="text-sm text-gray-500">Qty: ${item.quantity || 0}</div>
+                </div>
+              </div>
+              <div class="font-semibold">Rp ${(item.price || 0).toLocaleString('id-ID')}</div>
+            </div>
+          `).join('') || '<p class="text-gray-500">Data item tidak tersedia</p>';
+
+          const detailHtml = `
+            <div class="space-y-6">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <h3 class="font-semibold mb-3">Informasi Pelanggan</h3>
+                  <div class="bg-gray-50 p-4 rounded-lg space-y-2">
+                    <div><strong>Nama:</strong> ${transaction.shipping?.fullName || 'N/A'}</div>
+                    <div><strong>Email:</strong> ${transaction.shipping?.email || 'N/A'}</div>
+                    <div><strong>Telepon:</strong> ${transaction.shipping?.phone || 'N/A'}</div>
+                    <div><strong>Alamat:</strong> ${transaction.shipping?.address || 'N/A'}</div>
+                  </div>
+                </div>
+                <div>
+                  <h3 class="font-semibold mb-3">Informasi Pembayaran</h3>
+                  <div class="bg-gray-50 p-4 rounded-lg space-y-2">
+                    <div><strong>Metode:</strong> ${transaction.payment?.method || 'N/A'}</div>
+                    <div><strong>Status:</strong> <span class="status-${transaction.status}">${transaction.status || 'N/A'}</span></div>
+                    <div><strong>Tanggal:</strong> ${new Date(transaction.date).toLocaleDateString('id-ID') || 'N/A'}</div>
+                    ${transaction.processedDate ? `<div><strong>Diproses:</strong> ${new Date(transaction.processedDate).toLocaleDateString('id-ID')}</div>` : ''}
+                  </div>
+                </div>
+              </div>
+              <div>
+                <h3 class="font-semibold mb-3">Item Pesanan</h3>
+                <div class="bg-gray-50 p-4 rounded-lg">
+                  ${itemsHtml}
+                  <div class="pt-4 mt-4 border-t">
+                    <div class="flex justify-between text-lg font-bold">
+                      <span>Total:</span>
+                      <span>Rp ${(transaction.total || 0).toLocaleString('id-ID')}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          `;
+
+          document.getElementById('transactionDetail').innerHTML = detailHtml;
+          document.getElementById('transactionModal').classList.remove('hidden');
         }
       };
 
